@@ -263,10 +263,10 @@
     // Attendance submission (already working)
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbymA03UPvai3U3aV1yvTr1vj4wXnysUhRygI9bLza-YkX1YtaH69EDykJngb9Ny8IClCA/exec";
 
-    // Roster fetch API (your roster code.gs deployed as Web App)
-    const ROSTER_URL    = "https://script.google.com/macros/s/AKfycbzjesO7reTJYhIkBoJHuB1PAW8UDGgsZ1cnukgC5zYBHQkzl6sougIan7Btc0_TOUJQ/exec"; // TODO: replace with your roster Web App URL
-    const ROSTER_SECRET = "k9F@3xQp7L_92aZ!rT"; // must match SECRET in roster code.gs
-    const COURSE_ID     = "30000";             // same courseId you used when saving roster
+    // Roster fetch API (reads latest file from Drive)
+    const ROSTER_URL    = "https://script.google.com/macros/s/AKfycbwTkGO8pnejb3Rj3vmx9ilQy1vyjfgkPW7_UoTrJx9zxBQJYVailKppcRfJOXBHFCl-/exec";
+    const ROSTER_SECRET = "k9F@3xQp7L_92aZ!rT";
+    const COURSE_ID     = "30000";
 
     // =====================
     // INDEXEDDB HELPER
@@ -522,15 +522,16 @@
     // =====================
     // ROSTER
     // =====================
-    async function fetchRosterFromServer(section) {
-      if (!ROSTER_URL || ROSTER_URL.includes('YOUR_ROSTER_SCRIPT_ID')) {
+    async function fetchRosterFromServer(_sectionFromUI) {
+      if (!ROSTER_URL) {
         throw new Error('ROSTER_URL not configured');
       }
 
+      // Always fetch with section=NA to match Drive file naming
       const params = new URLSearchParams({
         secret: ROSTER_SECRET,
         courseId: COURSE_ID,
-        section: section || 'NA'
+        section: 'NA'
       });
 
       const res = await fetch(`${ROSTER_URL}?${params.toString()}`);
@@ -808,12 +809,7 @@
         render();
         setNet();
         
-        if (APPSCRIPT_URL.includes('YOUR_DEPLOYMENT')) {
-          console.warn('⚠️ Apps Script URL not configured. Update APPSCRIPT_URL in code.');
-          status.textContent = '⚠️ Setup required: Update Apps Script URL in code. See documentation.';
-        } else {
-          console.log('✅ App initialized. Apps Script connected:', APPSCRIPT_URL.substring(0, 50) + '...');
-        }
+        console.log('✅ App initialized. Roster syncing from Drive.');
       } catch (e) {
         console.error('Init failed:', e);
       }
