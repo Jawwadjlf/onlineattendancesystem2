@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – Attendance System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 28px;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: #718096;
+      font-size: 14px;
+    }
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      background: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #4a5568;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .tab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .content {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      min-height: 400px;
+    }
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    .card {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      color: #2d3748;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .card p {
+      color: #718096;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+    .btn.secondary {
+      background: #e2e8f0;
+      color: #2d3748;
+    }
+    .btn.danger {
+      background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+    }
+    .code-block {
+      background: #1a202c;
+      color: #68d391;
+      padding: 16px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .alert {
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .alert.success {
+      background: rgba(72, 187, 120, 0.1);
+      color: #2f855a;
+      border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+    .alert.error {
+      background: rgba(245, 101, 101, 0.1);
+      color: #c53030;
+      border: 1px solid rgba(245, 101, 101, 0.3);
+    }
+    .alert.info {
+      background: rgba(66, 153, 225, 0.1);
+      color: #2c5282;
+      border: 1px solid rgba(66, 153, 225, 0.3);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    table th,
+    table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+    }
+    table th {
+      font-weight: 700;
+      color: #2d3748;
+      background: #f7fafc;
+    }
+    table td {
+      color: #4a5568;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.green {
+      background: rgba(72, 187, 120, 0.15);
+      color: #2f855a;
+    }
+    .badge.blue {
+      background: rgba(66, 153, 225, 0.15);
+      color: #2c5282;
+    }
+    .badge.red {
+      background: rgba(245, 101, 101, 0.15);
+      color: #c53030;
+    }
+    .copy-btn {
+      position: relative;
+      margin-top: 12px;
+    }
+    .instructions {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      margin-top: 12px;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+      color: #4a5568;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    .stat-card h4 {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🛠️ Admin Panel</h1>
+      <p>Attendance System Management Dashboard</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('scraper')">📥 Roster Scraper</button>
+      <button class="tab" onclick="switchTab('rosters')">📋 View Rosters</button>
+      <button class="tab" onclick="switchTab('unlock')">🔓 Unlock Attendance</button>
+      <button class="tab" onclick="switchTab('addStudent')">➕ Add Student</button>
+      <button class="tab" onclick="switchTab('crs')">👥 Manage CRs</button>
+    </div>
+
+    <div class="content">
+      <!-- TAB 1: ROSTER SCRAPER -->
+      <div id="scraper" class="tab-pane active">
+        <div class="card">
+          <h3>📥 CUOnline Roster Scraper</h3>
+          <p>Generate a bookmarklet to extract roster data directly from CUOnline attendance page and save to Drive.</p>
+          
+          <div class="form-group">
+            <label>Apps Script Endpoint URL</label>
+            <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbwTkGO8pnejb3Rj3vmx9ilQy1vyjfgkPW7_UoTrJx9zxBQJYVailKppcRfJOXBHFCl-/exec" />
+          </div>
+
+          <div class="form-group">
+            <label>Secret Key</label>
+            <input type="password" id="secretKey" value="k9F@3xQp7L_92aZ!rT" />
+          </div>
+
+          <button class="btn" onclick="generateBookmarklet()">🛠️ Generate Bookmarklet Code</button>
+
+          <div id="bookmarkletOutput" style="display:none;">
+            <div class="code-block" id="bookmarkletCode"></div>
+            <button class="btn copy-btn" onclick="copyBookmarklet()">📋 Copy to Clipboard</button>
+          </div>
+
+          <div class="instructions">
+            <strong>💡 How to use:</strong>
+            <ol>
+              <li>Click <b>"Generate Bookmarklet Code"</b> button above</li>
+              <li>Copy the generated JavaScript code</li>
+              <li>Open CUOnline and navigate to attendance page for a specific course/section</li>
+              <li>Open browser DevTools (F12) → Console tab</li>
+              <li>Paste the code and press Enter</li>
+              <li>Roster will be extracted and saved to Drive automatically</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📊 Quick Stats</h3>
+          <div class="grid">
+            <div class="stat-card">
+              <h4>Total Rosters</h4>
+              <div class="number" id="totalRosters">-</div>
+            </div>
+            <div class="stat-card">
+              <h4>Total Students</h4>
+              <div class="number" id="totalStudents">-</div>
+            </div>
+            <div class="stat-card">
+              <h4>Sections</h4>
+              <div class="number" id="totalSections">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: VIEW ROSTERS -->
+      <div id="rosters" class="tab-pane">
+        <div class="card">
+          <h3>📋 Synced Rosters</h3>
+          <p>View all roster files stored in Drive</p>
+          <button class="btn" onclick="loadRosters()">🔄 Refresh List</button>
+          <div id="rostersList"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3: UNLOCK ATTENDANCE -->
+      <div id="unlock" class="tab-pane">
+        <div class="card">
+          <h3>🔓 Unlock Attendance</h3>
+          <p>Allow CRs to edit previously submitted attendance</p>
+          
+          <div class="form-group">
+            <label>Course ID</label>
+            <input type="text" id="unlockCourseId" placeholder="30000" />
+          </div>
+
+          <div class="form-group">
+            <label>Section</label>
+            <select id="unlockSection">
+              <option value="NA">NA</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="unlockDate" />
+          </div>
+
+          <button class="btn danger" onclick="unlockAttendance()">🔓 Unlock</button>
+          <div id="unlockStatus"></div>
+        </div>
+      </div>
+
+      <!-- TAB 4: ADD STUDENT -->
+      <div id="addStudent" class="tab-pane">
+        <div class="card">
+          <h3>➕ Add Student to Roster</h3>
+          <p>Manually add a new student to an existing roster</p>
+          
+          <div class="form-group">
+            <label>Course ID</label>
+            <input type="text" id="addCourseId" placeholder="30000" />
+          </div>
+
+          <div class="form-group">
+            <label>Section</label>
+            <select id="addSection">
+              <option value="NA">NA</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Registration Number</label>
+            <input type="text" id="addRegNo" placeholder="FA22-BCS-001" />
+          </div>
+
+          <div class="form-group">
+            <label>Student Name</label>
+            <input type="text" id="addName" placeholder="JOHN DOE" />
+          </div>
+
+          <button class="btn" onclick="addStudent()">➕ Add Student</button>
+          <div id="addStatus"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: MANAGE CRs -->
+      <div id="crs" class="tab-pane">
+        <div class="card">
+          <h3>👥 CR Management</h3>
+          <p>Assign CRs to sections and manage access control</p>
+          
+          <div class="alert info">
+            <strong>🚫 Feature Coming Soon:</strong> This feature will allow you to:
+            <ul style="margin-top: 8px; margin-left: 20px;">
+              <li>Assign CR emails to specific sections</li>
+              <li>Control which CRs can access which rosters</li>
+              <li>Manage permissions and roles</li>
+            </ul>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Section</th>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>cr1@comsats.edu.pk</td>
+                <td><span class="badge blue">Section A</span></td>
+                <td>CSC462</td>
+                <td><span class="badge green">Active</span></td>
+                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
+              </tr>
+              <tr>
+                <td>cr2@comsats.edu.pk</td>
+                <td><span class="badge blue">Section B</span></td>
+                <td>CSC462</td>
+                <td><span class="badge green">Active</span></td>
+                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Switch tabs
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      
+      event.target.classList.add('active');
+      document.getElementById(tabName).style.display = 'block';
+    }
+
+    // Generate bookmarklet
+    function generateBookmarklet() {
+      const scriptUrl = document.getElementById('scriptUrl').value;
+      const secret = document.getElementById('secretKey').value;
+
+      const code = `(() => {
+  const src = window.lstAttendanceRegister?.LstAttendanceStudents;
+  if (!Array.isArray(src) || src.length === 0) {
+    alert("❌ Roster not found");
+    return;
+  }
+ 
+  const roster = src.map((s, i) => ({
+    sr: i + 1,
+    regNo: s.DisplayReg_No,
+    name: s.StudentName
+  }));
+ 
+  const payload = {
+    type: "roster",
+    courseId: window.courseId || "UNKNOWN",
+    courseName: window.courseName || "UNKNOWN",
+    section: window.section || "NA",
+    facultyId: window.FacultyId,
+    extractedAt: new Date().toISOString(),
+    totalStudents: roster.length,
+    roster
+  };
+ 
+  const SECRET = encodeURIComponent("${secret}");
+  const ENDPOINT = "${scriptUrl}";
+ 
+  console.log("📤 Sending to Drive...");
+ 
+  fetch(\`\${ENDPOINT}?secret=\${SECRET}\`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    console.log("📥 Server response:", data);
+   
+    if (data.ok) {
+      console.log("✅ File created:", data.filename);
+      console.log("🔗 View file:", data.fileUrl);
+      console.log("📊 Students synced:", data.studentsCount);
+      alert(\`✅ Roster synced successfully!\n\n📁 \${data.filename}\n👥 \${data.studentsCount} students\n\n🔗 Click to open:\n\${data.fileUrl}\`);
+    } else {
+      console.error("❌ Server error:", data.error);
+      alert(\`❌ Sync failed: \${data.error}\`);
+    }
+  })
+  .catch(err => {
+    console.error("❌ Network error:", err);
+    alert(\`❌ Network error: \${err.message}\`);
+  });
+})();`;
+
+      document.getElementById('bookmarkletCode').textContent = code;
+      document.getElementById('bookmarkletOutput').style.display = 'block';
+    }
+
+    // Copy bookmarklet
+    function copyBookmarklet() {
+      const code = document.getElementById('bookmarkletCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Copied to clipboard!');
+      });
+    }
+
+    // Load rosters
+    function loadRosters() {
+      document.getElementById('rostersList').innerHTML = '<div class="alert info">⏳ Loading rosters...</div>';
+      
+      // TODO: Implement API call to fetch rosters from Drive
+      setTimeout(() => {
+        document.getElementById('rostersList').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Course</th>
+                <th>Section</th>
+                <th>Students</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>roster_course_30000_section_NA_2026-02-07.json</td>
+                <td>30000</td>
+                <td><span class="badge blue">NA</span></td>
+                <td>13</td>
+                <td>2026-02-07</td>
+                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      }, 1000);
+    }
+
+    // Unlock attendance
+    function unlockAttendance() {
+      const courseId = document.getElementById('unlockCourseId').value;
+      const section = document.getElementById('unlockSection').value;
+      const date = document.getElementById('unlockDate').value;
+
+      if (!courseId || !date) {
+        document.getElementById('unlockStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+        return;
+      }
+
+      document.getElementById('unlockStatus').innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
+      
+      // TODO: Implement unlock API call
+      setTimeout(() => {
+        document.getElementById('unlockStatus').innerHTML = `<div class="alert success">✅ Attendance unlocked for Course ${courseId}, Section ${section}, Date ${date}</div>`;
+      }, 1000);
+    }
+
+    // Add student
+    function addStudent() {
+      const courseId = document.getElementById('addCourseId').value;
+      const section = document.getElementById('addSection').value;
+      const regNo = document.getElementById('addRegNo').value;
+      const name = document.getElementById('addName').value;
+
+      if (!courseId || !regNo || !name) {
+        document.getElementById('addStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+        return;
+      }
+
+      document.getElementById('addStatus').innerHTML = '<div class="alert info">⏳ Adding student...</div>';
+      
+      // TODO: Implement add student API call
+      setTimeout(() => {
+        document.getElementById('addStatus').innerHTML = `<div class="alert success">✅ Student ${name} (${regNo}) added to Course ${courseId}, Section ${section}</div>`;
+      }, 1000);
+    }
+
+    // Load stats on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      // TODO: Load actual stats from API
+      document.getElementById('totalRosters').textContent = '1';
+      document.getElementById('totalStudents').textContent = '13';
+      document.getElementById('totalSections').textContent = '1';
+    });
+  </script>
+</body>
+</html>
