@@ -158,9 +158,9 @@
             <div class="pill2" id="statusBadge">✏️ Edit Mode</div>
           </div>
           <div class="meta" style="margin-top:10px;">
-            <div class="kv"><div class="k">Course</div><div class="v" id="course">CSC462 – AI</div></div>
-            <div class="kv"><div class="k">Section</div><div class="v"><select id="sectionSelect"><option>A</option><option>B</option></select></div></div>
-            <div class="kv"><div class="k">Date</div><div class="v"><input type="date" id="dateInput" value="2026-02-06" /></div></div>
+            <div class="kv"><div class="k">Course</div><div class="v" id="course">Loading...</div></div>
+            <div class="kv"><div class="k">Section</div><div class="v" id="sectionDisplay">-</div></div>
+            <div class="kv"><div class="k">Date</div><div class="v"><input type="date" id="dateInput" /></div></div>
             <div class="kv"><div class="k">Time</div><div class="v"><input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime" value="10:20" /></div></div>
             <div class="kv"><div class="k">Type</div><div class="v"><select id="typeSelect"><option value="1">Class</option><option value="2">Lab</option><option value="4">Exam</option></select></div></div>
           </div>
@@ -260,10 +260,7 @@
     // =====================
     // GOOGLE APPS SCRIPT CONFIG
     // =====================
-    // Attendance submission (already working)
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbymA03UPvai3U3aV1yvTr1vj4wXnysUhRygI9bLza-YkX1YtaH69EDykJngb9Ny8IClCA/exec";
-
-    // Roster fetch API (reads latest file from Drive)
     const ROSTER_URL    = "https://script.google.com/macros/s/AKfycbwTkGO8pnejb3Rj3vmx9ilQy1vyjfgkPW7_UoTrJx9zxBQJYVailKppcRfJOXBHFCl-/exec";
     const ROSTER_SECRET = "k9F@3xQp7L_92aZ!rT";
     const COURSE_ID     = "30000";
@@ -361,7 +358,8 @@
     let currentUser = { email: 'cr@comsats.edu.pk', role: 'CR', uid: 'user123' };
 
     const marks = new Map();
-    let students = []; // from roster JSON
+    let students = [];
+    let rosterMeta = {}; // Store section, courseName from roster JSON
 
     // =====================
     // DOM REFS
@@ -384,7 +382,6 @@
     const analyticsCard = document.getElementById('analyticsCard');
     const syncRosterBtn = document.getElementById('syncRosterBtn');
 
-    // Modals
     const submitBackdrop = document.getElementById('submitBackdrop');
     const confirmSubmit = document.getElementById('confirmSubmit');
     const cancelSubmit = document.getElementById('cancelSubmit');
@@ -394,6 +391,17 @@
     const emailStatus = document.getElementById('emailStatus');
     const sendEmail = document.getElementById('sendEmail');
     const cancelEmail = document.getElementById('cancelEmail');
+
+    // =====================
+    // HELPER: Set today's date
+    // =====================
+    function setTodayDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+    }
 
     // =====================
     // FUNCTIONS
@@ -455,7 +463,6 @@
       try {
         const draft = {
           meta: {
-            section: document.getElementById('sectionSelect').value,
             date: document.getElementById('dateInput').value,
             startTime: document.getElementById('startTime').value,
             endTime: document.getElementById('endTime').value,
@@ -478,8 +485,7 @@
         if (!draft || !draft.data) return;
         const d = draft.data;
 
-        document.getElementById('sectionSelect').value = d.meta.section || 'A';
-        document.getElementById('dateInput').value = d.meta.date || '2026-02-06';
+        document.getElementById('dateInput').value = d.meta.date || document.getElementById('dateInput').value;
         document.getElementById('startTime').value = d.meta.startTime || '09:00';
         document.getElementById('endTime').value = d.meta.endTime || '10:20';
         document.getElementById('typeSelect').value = String(d.meta.classType || '1');
@@ -499,9 +505,9 @@
 
     function buildAttendanceJson() {
       return {
-        course: document.getElementById('course').textContent,
-        courseValue: 30000,
-        section: document.getElementById('sectionSelect').value,
+        course: rosterMeta.courseName || document.getElementById('course').textContent,
+        courseValue: rosterMeta.courseId || 30000,
+        section: rosterMeta.section || 'NA',
         date: document.getElementById('dateInput').value,
         startTime: document.getElementById('startTime').value,
         endTime: document.getElementById('endTime').value,
@@ -522,12 +528,11 @@
     // =====================
     // ROSTER
     // =====================
-    async function fetchRosterFromServer(_sectionFromUI) {
+    async function fetchRosterFromServer() {
       if (!ROSTER_URL) {
         throw new Error('ROSTER_URL not configured');
       }
 
-      // Always fetch with section=NA to match Drive file naming
       const params = new URLSearchParams({
         secret: ROSTER_SECRET,
         courseId: COURSE_ID,
@@ -548,10 +553,22 @@
     function applyRoster(payload) {
       const roster = payload.roster || [];
 
-      students = roster.map((item, i) => ({
+      // Extract metadata
+      rosterMeta = {
+        courseId: payload.courseId || 30000,
+        courseName: payload.courseName || `Course ${payload.courseId || 30000}`,
+        section: payload.section || 'NA'
+      };
+
+      // Update UI
+      document.getElementById('course').textContent = rosterMeta.courseName;
+      document.getElementById('sectionDisplay').textContent = rosterMeta.section;
+
+      // Map roster to students
+      students = roster.map((item) => ({
         regNo: item.regNo,
-        displayReg: item.displayReg || item.regNo,
-        name: item.name || `Student ${i + 1}`
+        displayReg: item.regNo,
+        name: item.name || 'Unknown'
       }));
 
       marks.clear();
@@ -562,8 +579,6 @@
     }
 
     async function initRoster() {
-      const section = document.getElementById('sectionSelect').value || 'A';
-
       try {
         const saved = await db.getRoster();
         if (saved && saved.data) {
@@ -573,7 +588,7 @@
 
         if (isOnline) {
           status.textContent = '⏳ Syncing roster from server...';
-          const fresh = await fetchRosterFromServer(section);
+          const fresh = await fetchRosterFromServer();
           await db.saveRoster(fresh);
           applyRoster(fresh);
           status.textContent = `✅ Roster synced from server (${students.length} students).`;
@@ -589,8 +604,6 @@
     }
 
     async function syncRoster() {
-      const section = document.getElementById('sectionSelect').value || 'A';
-
       if (!isOnline) {
         status.textContent = '🟡 Cannot sync roster while offline.';
         return;
@@ -598,7 +611,7 @@
 
       status.textContent = '⏳ Syncing roster...';
       try {
-        const fresh = await fetchRosterFromServer(section);
+        const fresh = await fetchRosterFromServer();
         await db.saveRoster(fresh);
         applyRoster(fresh);
         status.textContent = `✅ Roster updated. (${students.length} students loaded.)`;
@@ -619,7 +632,7 @@
     search.addEventListener('input', render);
 
     ['change', 'input'].forEach(ev => {
-      ['sectionSelect', 'dateInput', 'startTime', 'endTime', 'typeSelect'].forEach(id => {
+      ['dateInput', 'startTime', 'endTime', 'typeSelect'].forEach(id => {
         document.getElementById(id).addEventListener(ev, async () => !locked && await saveDraftLocal());
       });
       isOnlineChk.addEventListener(ev, async () => !locked && await saveDraftLocal());
@@ -786,7 +799,6 @@
       syncRoster();
     });
 
-    // Network events
     window.addEventListener('online', () => {
       isOnline = true;
       setNet();
@@ -803,6 +815,7 @@
     // =====================
     (async () => {
       try {
+        setTodayDate();
         await db.init();
         await initRoster();
         await restoreDraftLocal();
@@ -815,7 +828,6 @@
       }
     })();
 
-    // Register Service Worker (PWA)
     if (supportsPWA()) {
       navigator.serviceWorker.register('./service-worker.js').then(() => {
         console.log('✅ Service Worker registered successfully');
