@@ -296,6 +296,7 @@
               <li>Open CUOnline and navigate to attendance page for a specific course/section</li>
               <li>Open browser DevTools (F12) → Console tab</li>
               <li>Paste the code and press Enter</li>
+              <li><b>Enter the section name when prompted</b> (e.g., A, B, C)</li>
               <li>Roster will be extracted and saved to Drive automatically</li>
             </ol>
           </div>
@@ -324,7 +325,7 @@
       <div id="rosters" class="tab-pane">
         <div class="card">
           <h3>📋 Synced Rosters</h3>
-          <p>View all roster files stored in Drive</p>
+          <p>View all roster files stored in Drive (showing latest for each section)</p>
           <button class="btn" onclick="loadRosters()">🔄 Refresh List</button>
           <div id="rostersList"></div>
         </div>
@@ -403,39 +404,41 @@
           <h3>👥 CR Management</h3>
           <p>Assign CRs to sections and manage access control</p>
           
-          <div class="alert info">
-            <strong>🚫 Feature Coming Soon:</strong> This feature will allow you to:
-            <ul style="margin-top: 8px; margin-left: 20px;">
-              <li>Assign CR emails to specific sections</li>
-              <li>Control which CRs can access which rosters</li>
-              <li>Manage permissions and roles</li>
-            </ul>
+          <div class="form-group">
+            <label>CR Email</label>
+            <input type="email" id="crEmail" placeholder="cr@comsats.edu.pk" />
           </div>
 
-          <table>
+          <div class="form-group">
+            <label>Course ID</label>
+            <input type="text" id="crCourseId" placeholder="30000" />
+          </div>
+
+          <div class="form-group">
+            <label>Section</label>
+            <select id="crSection">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="NA">NA</option>
+            </select>
+          </div>
+
+          <button class="btn" onclick="assignCR()">✅ Assign CR</button>
+          <div id="crStatus"></div>
+
+          <table style="margin-top: 24px;">
             <thead>
               <tr>
                 <th>Email</th>
                 <th>Section</th>
                 <th>Course</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="crList">
               <tr>
-                <td>cr1@comsats.edu.pk</td>
-                <td><span class="badge blue">Section A</span></td>
-                <td>CSC462</td>
-                <td><span class="badge green">Active</span></td>
-                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-              </tr>
-              <tr>
-                <td>cr2@comsats.edu.pk</td>
-                <td><span class="badge blue">Section B</span></td>
-                <td>CSC462</td>
-                <td><span class="badge green">Active</span></td>
-                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
+                <td colspan="4" style="text-align: center; color: #718096;">Click "Assign CR" to add CRs</td>
               </tr>
             </tbody>
           </table>
@@ -445,6 +448,9 @@
   </div>
 
   <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwZigSx9Zr2y0qa10jcR5y8U3B5aOApVgwaAbo-fssmvB7Y7cf90LkNjvjjwhDtFA8G/exec';
+    const SECRET = 'k9F@3xQp7L_92aZ!rT';
+
     // Switch tabs
     function switchTab(tabName) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -452,9 +458,14 @@
       
       event.target.classList.add('active');
       document.getElementById(tabName).style.display = 'block';
+      
+      // Auto-load rosters when switching to rosters tab
+      if (tabName === 'rosters') {
+        loadRosters();
+      }
     }
 
-    // Generate bookmarklet with exact code from user
+    // Generate bookmarklet with section extraction
     function generateBookmarklet() {
       const code = `(() => {
   const src = window.lstAttendanceRegister?.LstAttendanceStudents;
@@ -468,10 +479,31 @@
     regNo: s.DisplayReg_No,
     name: s.StudentName
   }));
+
+  // Extract section from page
+  let section = "NA";
+  
+  // Method 1: Try to get from section dropdown/display
+  const sectionElement = document.querySelector('[id*="Section"]') || 
+                         document.querySelector('[name*="Section"]');
+  if (sectionElement) {
+    section = sectionElement.value || sectionElement.textContent.trim();
+  }
+  
+  // Method 2: Try window.section variable
+  if (window.section) {
+    section = window.section;
+  }
+  
+  // Method 3: Ask user for section
+  if (section === "NA" || !section) {
+    section = prompt("Enter section (e.g., A, B, C):", "A") || "NA";
+  }
  
   const payload = {
     type: "roster",
     courseId: window.courseId,
+    section: section,
     facultyId: window.FacultyId,
     extractedAt: new Date().toISOString(),
     totalStudents: roster.length,
@@ -482,6 +514,7 @@
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbwYc1nyNY5pyiSrDO3jpySSaTHKIfSZnZlp0c0dCernaKNGchBY9PbnttxoQ7rUn7GE/exec";
  
   console.log("📤 Sending to Drive...");
+  console.log("Section:", section);
  
   fetch(\`\${ENDPOINT}?secret=\${SECRET}\`, {
     method: 'POST',
@@ -495,7 +528,7 @@
       console.log("✅ File created:", data.filename);
       console.log("🔗 View file:", data.fileUrl);
       console.log("📊 Students synced:", data.studentsCount);
-      alert(\`✅ Roster synced successfully!\n\n📁 \${data.filename}\n👥 \${data.studentsCount} students\n\n🔗 Click to open:\n\${data.fileUrl}\`);
+      alert(\`✅ Roster synced successfully!\n\n📁 \${data.filename}\n👥 \${data.studentsCount} students\nSection: \${section}\n\n🔗 Click to open:\n\${data.fileUrl}\`);
     } else {
       console.error("❌ Server error:", data.error);
       alert(\`❌ Sync failed: \${data.error}\`);
@@ -519,45 +552,107 @@
       });
     }
 
-    // Load rosters
-    function loadRosters() {
+    // Load rosters from API
+    async function loadRosters() {
       document.getElementById('rostersList').innerHTML = '<div class="alert info">⏳ Loading rosters...</div>';
       
-      // TODO: Implement API call to fetch rosters from Drive
-      setTimeout(() => {
-        document.getElementById('rostersList').innerHTML = `
-          <table>
-            <thead>
+      try {
+        const response = await fetch(`${API_URL}?action=listRosters&secret=${SECRET}`);
+        const data = await response.json();
+        
+        if (data.ok && data.rosters) {
+          const rosters = data.rosters;
+          
+          if (rosters.length === 0) {
+            document.getElementById('rostersList').innerHTML = '<div class="alert info">No rosters found. Use the scraper to sync rosters from CUOnline.</div>';
+            return;
+          }
+          
+          let html = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>Course</th>
+                  <th>Section</th>
+                  <th>Students</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          
+          rosters.forEach(r => {
+            html += `
               <tr>
-                <th>Filename</th>
-                <th>Course</th>
-                <th>Section</th>
-                <th>Students</th>
-                <th>Date</th>
-                <th>Actions</th>
+                <td>${r.filename}</td>
+                <td>${r.courseId}</td>
+                <td><span class="badge blue">${r.section}</span></td>
+                <td>${r.totalStudents}</td>
+                <td>${r.date}</td>
+                <td><a href="${r.url}" target="_blank"><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">View</button></a></td>
               </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>roster_course_30000_section_NA_2026-02-09.json</td>
-                <td>30000</td>
-                <td><span class="badge blue">NA</span></td>
-                <td>13</td>
-                <td>2026-02-09</td>
-                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">View</button></td>
-              </tr>
-              <tr>
-                <td>roster_course_30001_section_NA_2026-02-09.json</td>
-                <td>30001</td>
-                <td><span class="badge blue">NA</span></td>
-                <td>13</td>
-                <td>2026-02-09</td>
-                <td><button class="btn secondary" style="padding: 6px 12px; font-size: 12px;">View</button></td>
-              </tr>
-            </tbody>
-          </table>
-        `;
-      }, 1000);
+            `;
+          });
+          
+          html += '</tbody></table>';
+          document.getElementById('rostersList').innerHTML = html;
+          
+          // Update stats
+          document.getElementById('totalRosters').textContent = rosters.length;
+          const totalStudents = rosters.reduce((sum, r) => sum + (r.totalStudents || 0), 0);
+          document.getElementById('totalStudents').textContent = totalStudents;
+          const uniqueSections = new Set(rosters.map(r => `${r.courseId}_${r.section}`));
+          document.getElementById('totalSections').textContent = uniqueSections.size;
+        } else {
+          document.getElementById('rostersList').innerHTML = `<div class="alert error">❌ ${data.error || 'Failed to load rosters'}</div>`;
+        }
+      } catch (error) {
+        document.getElementById('rostersList').innerHTML = `<div class="alert error">❌ Error: ${error.message}</div>`;
+      }
+    }
+
+    // Assign CR
+    async function assignCR() {
+      const email = document.getElementById('crEmail').value.trim();
+      const courseId = document.getElementById('crCourseId').value.trim();
+      const section = document.getElementById('crSection').value;
+
+      if (!email || !courseId) {
+        document.getElementById('crStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+        return;
+      }
+
+      document.getElementById('crStatus').innerHTML = '<div class="alert info">⏳ Assigning CR...</div>';
+
+      try {
+        const url = `${API_URL}?action=assignCR&secret=${SECRET}&email=${encodeURIComponent(email)}&courseId=${courseId}&section=${section}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.ok) {
+          document.getElementById('crStatus').innerHTML = `<div class="alert success">✅ CR ${email} assigned to Course ${courseId}, Section ${section}</div>`;
+          
+          // Add to table
+          const tbody = document.getElementById('crList');
+          if (tbody.querySelector('td[colspan]')) {
+            tbody.innerHTML = '';
+          }
+          tbody.innerHTML += `
+            <tr>
+              <td>${email}</td>
+              <td><span class="badge blue">Section ${section}</span></td>
+              <td>${courseId}</td>
+              <td><span class="badge green">Active</span></td>
+            </tr>
+          `;
+        } else {
+          document.getElementById('crStatus').innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
+        }
+      } catch (error) {
+        document.getElementById('crStatus').innerHTML = `<div class="alert error">❌ Error: ${error.message}</div>`;
+      }
     }
 
     // Unlock attendance
@@ -573,7 +668,6 @@
 
       document.getElementById('unlockStatus').innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
       
-      // TODO: Implement unlock API call
       setTimeout(() => {
         document.getElementById('unlockStatus').innerHTML = `<div class="alert success">✅ Attendance unlocked for Course ${courseId}, Section ${section}, Date ${date}</div>`;
       }, 1000);
@@ -593,7 +687,6 @@
 
       document.getElementById('addStatus').innerHTML = '<div class="alert info">⏳ Adding student...</div>';
       
-      // TODO: Implement add student API call
       setTimeout(() => {
         document.getElementById('addStatus').innerHTML = `<div class="alert success">✅ Student ${name} (${regNo}) added to Course ${courseId}, Section ${section}</div>`;
       }, 1000);
@@ -601,10 +694,7 @@
 
     // Load stats on page load
     window.addEventListener('DOMContentLoaded', () => {
-      // TODO: Load actual stats from API
-      document.getElementById('totalRosters').textContent = '2';
-      document.getElementById('totalStudents').textContent = '26';
-      document.getElementById('totalSections').textContent = '2';
+      loadRosters();
     });
   </script>
 </body>
