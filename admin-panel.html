@@ -709,7 +709,6 @@
                 <th>Course ID</th>
                 <th>Section</th>
                 <th>Assigned At</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>`;
@@ -721,7 +720,6 @@
               <td><span class="badge blue">${cr.courseId}</span></td>
               <td><span class="badge purple">${cr.section}</span></td>
               <td>${date}</td>
-              <td><button class="btn danger" style="padding: 6px 12px; font-size: 12px;" onclick="removeCR('${cr.email}')">❌ Remove</button></td>
             </tr>`;
           });
 
@@ -793,26 +791,6 @@
         }
       } catch (err) {
         document.getElementById('addStatus').innerHTML = `<div class="alert error">❌ Error: ${err.message}</div>`;
-      }
-    }
-
-    // Remove CR
-    async function removeCR(email) {
-      if (!confirm(`Are you sure you want to remove CR: ${email}?`)) return;
-
-      try {
-        const url = `${API_URL}?action=removeCR&secret=${SECRET}&email=${encodeURIComponent(email)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.ok) {
-          alert(`✅ ${data.message}`);
-          loadCRs();
-        } else {
-          alert(`❌ Error: ${data.error}`);
-        }
-      } catch (err) {
-        alert(`❌ Error: ${err.message}`);
       }
     }
 

@@ -16,7 +16,7 @@ function doGet(e) {
   const secret = e.parameter.secret;
   
   // Validate secret for protected actions
-  const protectedActions = ['listRosters', 'listCRs', 'assignCR', 'removeCR', 'unlockAttendance', 'addStudent', 'getCRAssignment', 'getLatestRoster'];
+  const protectedActions = ['listRosters', 'listCRs', 'assignCR', 'unlockAttendance', 'addStudent', 'getCRAssignment', 'getLatestRoster'];
   if (protectedActions.includes(action) && secret !== SECRET) {
     return jsonResponse({ ok: false, error: 'Invalid secret' });
   }
@@ -205,37 +205,6 @@ function doGet(e) {
       }
 
       return jsonResponse({ ok: true });
-    } catch (error) {
-      return jsonResponse({ ok: false, error: error.toString() });
-    }
-  }
-
-  // --- removeCR ---
-  if (action === 'removeCR') {
-    const email = e.parameter.email;
-
-    if (!email) {
-      return jsonResponse({ ok: false, error: 'Missing email' });
-    }
-
-    try {
-      const files = DriveApp.getFilesByName('cr_assignments.json');
-      if (!files.hasNext()) {
-        return jsonResponse({ ok: false, error: 'No CR assignments file found' });
-      }
-
-      const file = files.next();
-      const data = JSON.parse(file.getBlob().getDataAsString());
-      const before = (data.assignments || []).length;
-      data.assignments = (data.assignments || []).filter(a => a.email.toLowerCase() !== email.toLowerCase());
-      const after = data.assignments.length;
-
-      if (before === after) {
-        return jsonResponse({ ok: false, error: `CR ${email} not found` });
-      }
-
-      file.setContent(JSON.stringify(data, null, 2));
-      return jsonResponse({ ok: true, message: `CR ${email} removed successfully` });
     } catch (error) {
       return jsonResponse({ ok: false, error: error.toString() });
     }
