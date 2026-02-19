@@ -867,20 +867,26 @@
     // CR AUTHENTICATION
     // =====================
     async function authenticateCR(email) {
+      // Use listCRs (confirmed working on live deployment) and filter by email
       const params = new URLSearchParams({
-        action: 'getCRAssignment',
-        secret: ROSTER_SECRET,
-        email: email
+        action: 'listCRs',
+        secret: ROSTER_SECRET
       });
 
       const res = await fetch(`${ROSTER_URL}?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
-      if (data.ok === false) throw new Error(data.error || 'Authentication failed');
+      if (!data.ok) throw new Error(data.error || 'Failed to fetch CR list');
 
-      return data.assignment;
+      const crs = data.crs || [];
+      const match = crs.find(cr => cr.email.toLowerCase() === email.toLowerCase());
+
+      if (!match) throw new Error('No CR assignment found for this email. Ask your admin to assign you first.');
+
+      return match;
     }
+
 
     function saveCRToStorage(assignment) {
       currentUser.email = assignment.email;
