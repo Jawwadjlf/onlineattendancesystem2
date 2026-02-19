@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#363763" />
   <meta name="description" content="CR Attendance Management System with Biometric Auth & Offline Support" />
   <title>CR Attendance – COMSATS Enhanced</title>
-  
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
-  
+
   <!-- Chart.js for Analytics -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
@@ -24,116 +25,543 @@
       --cui-text: #1b1e28;
       --cui-muted: #6b7280;
       --cui-line: #e5e7eb;
-      --cui-shadow: 0 10px 24px rgba(0,0,0,.10);
+      --cui-shadow: 0 10px 24px rgba(0, 0, 0, .10);
       --radius: 14px;
     }
 
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: var(--cui-bg); color: var(--cui-text); }
-
-    .wrap{ min-height:100vh; display:grid; place-items:center; padding:18px; }
-    .phone{ width:min(430px, 100%); border:1px solid #d7dbe2; border-radius:26px; overflow:hidden; background:var(--cui-card); box-shadow:var(--cui-shadow); display:flex; flex-direction:column; }
-
-    .topbar{ background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary)); color:#fff; padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.18); flex-shrink:0; }
-    .topbar .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .brand{ display:flex; flex-direction:column; gap:2px; }
-    .brand .h{ font-weight:700; font-size:16px; letter-spacing:.2px; }
-    .brand .s{ opacity:.85; font-size:12px; }
-
-    .pill{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.30); background: rgba(255,255,255,.10); white-space:nowrap; }
-    .mini-btn{ border:1px solid rgba(255,255,255,.30); background: rgba(255,255,255,.12); color:#fff; border-radius:10px; padding:8px 10px; font-size:12px; cursor:pointer; transition:all .2s; }
-    .mini-btn:hover{ background: rgba(255,255,255,.18); }
-
-    .content{ padding:12px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex:1; max-height:calc(100% - 200px); }
-    .card{ border:1px solid var(--cui-line); border-radius:var(--radius); padding:12px; background:#fff; }
-
-    .summary{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .summary .h{ font-weight:800; }
-    .summary .pill2{ border:1px solid var(--cui-line); background:#f8fafc; color:var(--cui-muted); border-radius:999px; padding:6px 10px; font-size:12px; white-space:nowrap; }
-
-    .meta{ display:grid; grid-template-columns: 1fr; gap:6px; font-size:13px; }
-    .kv{ display:flex; gap:10px; align-items:baseline; }
-    .k{ width:70px; color:var(--cui-muted); }
-    .v{ font-weight:700; }
-
-    input[type="date"], input[type="time"], input[type="email"], select{ border:1px solid var(--cui-line); border-radius:10px; padding:6px 8px; font-size:13px; outline:none; width: 100%; }
-    input[type="date"]:focus, input[type="time"]:focus, input[type="email"]:focus, select:focus{ border-color: var(--cui-primary); box-shadow: 0 0 0 3px rgba(54,55,99,.12); }
-
-    .checkrow{ display:flex; align-items:flex-start; gap:10px; font-size:13px; margin-bottom:10px; }
-    .checkrow input{ width:18px; height:18px; margin-top:2px; }
-
-    textarea{ width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-family: inherit; font-size:13px; min-height:76px; outline:none; }
-    textarea:focus{ border-color: var(--cui-primary); box-shadow: 0 0 0 3px rgba(54,55,99,.12); }
-    .count{ font-size:12px; color:var(--cui-muted); margin-top:6px; }
-
-    .search{ width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-size:13px; outline:none; }
-    .search:focus{ border-color: var(--cui-primary); box-shadow: 0 0 0 3px rgba(54,55,99,.12); }
-
-    .controls{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    .btn{ border:1px solid var(--cui-line); background:#f8fafc; color:var(--cui-text); border-radius:10px; padding:9px 10px; font-size:13px; cursor:pointer; transition:all .2s; }
-    .btn:hover{ background:#eef2f7; }
-    .btn.primary{ border-color: rgba(54,55,99,.25); background: rgba(54,55,99,.10); color:var(--cui-primary); }
-    .btn.danger{ border-color: rgba(189,56,80,.25); background: rgba(189,56,80,.08); color:var(--cui-danger); }
-    .btn.success{ border-color: rgba(34,194,95,.25); background: rgba(34,194,95,.08); color:var(--cui-success); }
-    .btn:disabled{ opacity:.5; cursor:not-allowed; }
-
-    .list{ margin-top:10px; border-top:1px solid var(--cui-line); }
-    .stu{ display:grid; grid-template-columns: 34px 1fr 90px; gap:10px; padding:10px 4px; border-bottom:1px solid var(--cui-line); align-items:center; }
-    .sr{ text-align:center; color:var(--cui-muted); font-size:12px; }
-    .who{ min-width:0; }
-    .reg{ color:var(--cui-muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .name{ font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-    .pa{ display:flex; gap:8px; justify-content:flex-end; }
-    .radio{ width:38px; height:32px; border-radius:10px; border:1px solid var(--cui-line); display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; user-select:none; background:#fff; transition:all .2s; }
-    .radio:hover{ border-color: var(--cui-primary); }
-    .radio.onP{ border-color: rgba(34,194,107,.40); background: rgba(34,194,107,.15); color: var(--cui-success); }
-    .radio.onA{ border-color: rgba(189,56,80,.40); background: rgba(189,56,80,.15); color:var(--cui-danger); }
-
-    .footer{ border-top:1px solid var(--cui-line); padding:12px; background:#fff; flex-shrink:0; overflow-y:auto; max-height:150px; }
-    .submitIconBtn{
-      display:flex; align-items:center; gap:10px; width:100%; justify-content:center;
-      border:1px solid rgba(54,55,99,.25); border-radius:12px; padding:10px 12px;
-      cursor:pointer; background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary));
-      color:#fff; font-weight:800; letter-spacing:.2px; transition:all .2s;
+    * {
+      box-sizing: border-box;
     }
-    .submitIconBtn:hover{ filter: brightness(1.05); }
-    .submitIconBtn:active{ transform: translateY(1px); }
-    .submitIconBtn[disabled]{ opacity:.55; cursor:not-allowed; filter: grayscale(.3); }
 
-    .status{ margin-top:10px; font-size:13px; color:var(--cui-muted); line-height:1.3; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: var(--cui-bg);
+      color: var(--cui-text);
+    }
 
-    .backdrop{ position:fixed; inset:0; background: rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; z-index:999; overflow-y:auto; }
-    .modal{ width:min(430px, 100%); background:#fff; border-radius:16px; border:1px solid var(--cui-line); box-shadow:var(--cui-shadow); padding:14px; margin:auto; }
-    .modal h3{ margin:0 0 6px; font-size:16px; }
-    .modal p{ margin:0 0 10px; color:var(--cui-muted); font-size:13px; }
-    .modal ul{ margin:0 0 12px; padding-left:18px; font-size:13px; }
-    .modal li{ margin:4px 0; }
-    .actions{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:12px; }
+    .wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
 
-    .badge{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; }
-    .badge.online{ background:rgba(34,194,107,.15); color:var(--cui-success); border:1px solid rgba(34,194,107,.3); }
-    .badge.offline{ background:rgba(255,159,64,.15); color:#ff9f40; border:1px solid rgba(255,159,64,.3); }
-    .badge.locked{ background:rgba(189,56,80,.15); color:var(--cui-danger); border:1px solid rgba(189,56,80,.3); }
-    .badge.approved{ background:rgba(34,194,107,.15); color:var(--cui-success); border:1px solid rgba(34,194,107,.3); }
+    .phone {
+      width: min(430px, 100%);
+      border: 1px solid #d7dbe2;
+      border-radius: 26px;
+      overflow: hidden;
+      background: var(--cui-card);
+      box-shadow: var(--cui-shadow);
+      display: flex;
+      flex-direction: column;
+    }
 
-    .tab-buttons{ display:flex; gap:10px; margin-bottom:10px; }
-    .tab-btn{ flex:1; padding:8px; border:1px solid var(--cui-line); background:#fff; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; transition:all .2s; }
-    .tab-btn.active{ background:var(--cui-primary); color:#fff; border-color:var(--cui-primary); }
+    .topbar {
+      background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary));
+      color: #fff;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, .18);
+      flex-shrink: 0;
+    }
 
-    .qr-container{ text-align:center; margin:10px 0; }
-    .qr-container canvas, .qr-container img{ max-width:100%; border:1px solid var(--cui-line); border-radius:10px; }
+    .topbar .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
-    @media (max-width: 360px){
-      .stu{ grid-template-columns: 30px 1fr 86px; }
-      .radio{ width:36px; }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand .h {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: .2px;
+    }
+
+    .brand .s {
+      opacity: .85;
+      font-size: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255, 255, 255, .30);
+      background: rgba(255, 255, 255, .10);
+      white-space: nowrap;
+    }
+
+    .mini-btn {
+      border: 1px solid rgba(255, 255, 255, .30);
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .mini-btn:hover {
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      flex: 1;
+      max-height: calc(100% - 200px);
+    }
+
+    .card {
+      border: 1px solid var(--cui-line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fff;
+    }
+
+    .summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .summary .h {
+      font-weight: 800;
+    }
+
+    .summary .pill2 {
+      border: 1px solid var(--cui-line);
+      background: #f8fafc;
+      color: var(--cui-muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .kv {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+    }
+
+    .k {
+      width: 70px;
+      color: var(--cui-muted);
+    }
+
+    .v {
+      font-weight: 700;
+    }
+
+    input[type="date"],
+    input[type="time"],
+    input[type="email"],
+    select {
+      border: 1px solid var(--cui-line);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="email"]:focus,
+    select:focus {
+      border-color: var(--cui-primary);
+      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
+    }
+
+    .checkrow {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .checkrow input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--cui-line);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      min-height: 76px;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--cui-primary);
+      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
+    }
+
+    .count {
+      font-size: 12px;
+      color: var(--cui-muted);
+      margin-top: 6px;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--cui-line);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--cui-primary);
+      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 1px solid var(--cui-line);
+      background: #f8fafc;
+      color: var(--cui-text);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn:hover {
+      background: #eef2f7;
+    }
+
+    .btn.primary {
+      border-color: rgba(54, 55, 99, .25);
+      background: rgba(54, 55, 99, .10);
+      color: var(--cui-primary);
+    }
+
+    .btn.danger {
+      border-color: rgba(189, 56, 80, .25);
+      background: rgba(189, 56, 80, .08);
+      color: var(--cui-danger);
+    }
+
+    .btn.success {
+      border-color: rgba(34, 194, 95, .25);
+      background: rgba(34, 194, 95, .08);
+      color: var(--cui-success);
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .list {
+      margin-top: 10px;
+      border-top: 1px solid var(--cui-line);
+    }
+
+    .stu {
+      display: grid;
+      grid-template-columns: 34px 1fr 90px;
+      gap: 10px;
+      padding: 10px 4px;
+      border-bottom: 1px solid var(--cui-line);
+      align-items: center;
+    }
+
+    .sr {
+      text-align: center;
+      color: var(--cui-muted);
+      font-size: 12px;
+    }
+
+    .who {
+      min-width: 0;
+    }
+
+    .reg {
+      color: var(--cui-muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .name {
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pa {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .radio {
+      width: 38px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--cui-line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      background: #fff;
+      transition: all .2s;
+    }
+
+    .radio:hover {
+      border-color: var(--cui-primary);
+    }
+
+    .radio.onP {
+      border-color: rgba(34, 194, 107, .40);
+      background: rgba(34, 194, 107, .15);
+      color: var(--cui-success);
+    }
+
+    .radio.onA {
+      border-color: rgba(189, 56, 80, .40);
+      background: rgba(189, 56, 80, .15);
+      color: var(--cui-danger);
+    }
+
+    .footer {
+      border-top: 1px solid var(--cui-line);
+      padding: 12px;
+      background: #fff;
+      flex-shrink: 0;
+      overflow-y: auto;
+      max-height: 150px;
+    }
+
+    .submitIconBtn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      border: 1px solid rgba(54, 55, 99, .25);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary));
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: .2px;
+      transition: all .2s;
+    }
+
+    .submitIconBtn:hover {
+      filter: brightness(1.05);
+    }
+
+    .submitIconBtn:active {
+      transform: translateY(1px);
+    }
+
+    .submitIconBtn[disabled] {
+      opacity: .55;
+      cursor: not-allowed;
+      filter: grayscale(.3);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--cui-muted);
+      line-height: 1.3;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+      overflow-y: auto;
+    }
+
+    .modal {
+      width: min(430px, 100%);
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--cui-line);
+      box-shadow: var(--cui-shadow);
+      padding: 14px;
+      margin: auto;
+    }
+
+    .modal h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .modal p {
+      margin: 0 0 10px;
+      color: var(--cui-muted);
+      font-size: 13px;
+    }
+
+    .modal ul {
+      margin: 0 0 12px;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+
+    .modal li {
+      margin: 4px 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.online {
+      background: rgba(34, 194, 107, .15);
+      color: var(--cui-success);
+      border: 1px solid rgba(34, 194, 107, .3);
+    }
+
+    .badge.offline {
+      background: rgba(255, 159, 64, .15);
+      color: #ff9f40;
+      border: 1px solid rgba(255, 159, 64, .3);
+    }
+
+    .badge.locked {
+      background: rgba(189, 56, 80, .15);
+      color: var(--cui-danger);
+      border: 1px solid rgba(189, 56, 80, .3);
+    }
+
+    .badge.approved {
+      background: rgba(34, 194, 107, .15);
+      color: var(--cui-success);
+      border: 1px solid rgba(34, 194, 107, .3);
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--cui-line);
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all .2s;
+    }
+
+    .tab-btn.active {
+      background: var(--cui-primary);
+      color: #fff;
+      border-color: var(--cui-primary);
+    }
+
+    .qr-container {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .qr-container canvas,
+    .qr-container img {
+      max-width: 100%;
+      border: 1px solid var(--cui-line);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 360px) {
+      .stu {
+        grid-template-columns: 30px 1fr 86px;
+      }
+
+      .radio {
+        width: 36px;
+      }
     }
 
     /* Animation */
-    @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
-    .fade-in{ animation:fadeIn .3s ease-in; }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn .3s ease-in;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="phone" role="application" aria-label="Enhanced CR Attendance PWA">
@@ -158,11 +586,31 @@
             <div class="pill2" id="statusBadge">✏️ Edit Mode</div>
           </div>
           <div class="meta" style="margin-top:10px;">
-            <div class="kv"><div class="k">Course</div><div class="v" id="course">Loading...</div></div>
-            <div class="kv"><div class="k">Section</div><div class="v" id="sectionDisplay">-</div></div>
-            <div class="kv"><div class="k">Date</div><div class="v"><input type="date" id="dateInput" /></div></div>
-            <div class="kv"><div class="k">Time</div><div class="v"><input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime" value="10:20" /></div></div>
-            <div class="kv"><div class="k">Type</div><div class="v"><select id="typeSelect"><option value="1">Class</option><option value="2">Lab</option><option value="4">Exam</option></select></div></div>
+            <div class="kv">
+              <div class="k">Course</div>
+              <div class="v" id="course">Loading...</div>
+            </div>
+            <div class="kv">
+              <div class="k">Section</div>
+              <div class="v" id="sectionDisplay">-</div>
+            </div>
+            <div class="kv">
+              <div class="k">Date</div>
+              <div class="v"><input type="date" id="dateInput" /></div>
+            </div>
+            <div class="kv">
+              <div class="k">Time</div>
+              <div class="v"><input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime"
+                  value="10:20" /></div>
+            </div>
+            <div class="kv">
+              <div class="k">Type</div>
+              <div class="v"><select id="typeSelect">
+                  <option value="1">Class</option>
+                  <option value="2">Lab</option>
+                  <option value="4">Exam</option>
+                </select></div>
+            </div>
           </div>
         </div>
 
@@ -186,9 +634,9 @@
           <input id="search" class="search" type="search" placeholder="Search by name or reg no" />
           <div class="controls">
             <button class="btn primary" id="allP">Mark All Present</button>
-            <button class="btn danger"  id="allA">Mark All Absent</button>
-            <button class="btn"         id="reset">Reset</button>
-            <button class="btn"         id="syncRosterBtn">🔄 Sync Roster</button>
+            <button class="btn danger" id="allA">Mark All Absent</button>
+            <button class="btn" id="reset">Reset</button>
+            <button class="btn" id="syncRosterBtn">🔄 Sync Roster</button>
           </div>
           <div class="list" id="list"></div>
         </div>
@@ -223,7 +671,8 @@
       <p>Enter your COMSATS email to access your section's attendance</p>
       <div style="margin-bottom:12px;">
         <label style="display:block; margin-bottom:6px; font-weight:700; font-size:13px;">CR Email</label>
-        <input type="email" id="loginEmail" placeholder="cr@comsats.edu.pk" style="width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-size:13px;" />
+        <input type="email" id="loginEmail" placeholder="cr@comsats.edu.pk"
+          style="width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-size:13px;" />
       </div>
       <div class="actions">
         <button class="btn primary" id="loginBtn" style="width:100%;">✓ Login</button>
@@ -255,8 +704,10 @@
       <h3>📧 Email Attendance to Faculty</h3>
       <div style="margin:10px 0;">
         <label style="display:block; margin-bottom:8px;"><b>Faculty Email:</b></label>
-        <input type="email" id="facultyEmail" placeholder="faculty@comsats.edu.pk" style="width:100%; border:1px solid var(--cui-line); border-radius:8px; padding:8px; font-size:13px;">
-        <div style="margin-top:8px; font-size:12px; color:var(--cui-muted);">The attendance will be stored in cloud and emailed to faculty for approval.</div>
+        <input type="email" id="facultyEmail" placeholder="faculty@comsats.edu.pk"
+          style="width:100%; border:1px solid var(--cui-line); border-radius:8px; padding:8px; font-size:13px;">
+        <div style="margin-top:8px; font-size:12px; color:var(--cui-muted);">The attendance will be stored in cloud and
+          emailed to faculty for approval.</div>
       </div>
       <div class="controls" style="margin-top:10px;">
         <button class="btn" id="cancelEmail">Cancel</button>
@@ -277,7 +728,7 @@
     // GOOGLE APPS SCRIPT CONFIG
     // =====================
     const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbymA03UPvai3U3aV1yvTr1vj4wXnysUhRygI9bLza-YkX1YtaH69EDykJngb9Ny8IClCA/exec";
-    const ROSTER_URL    = "https://script.google.com/macros/s/AKfycbxCT5ZMZDw54BVFuZfE5oWpj4i7qONeWo5c6WiIFbSLH-GmC-M_IF8OaMcYjMWrh67t/exec";
+    const ROSTER_URL = "https://script.google.com/macros/s/AKfycbwZigSx9Zr2y0qa10jcR5y8U3B5aOApVgwaAbo-fssmvB7Y7cf90LkNjvjjwhDtFA8G/exec";
     const ROSTER_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
@@ -424,10 +875,10 @@
 
       const res = await fetch(`${ROSTER_URL}?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      
+
       const data = await res.json();
       if (data.ok === false) throw new Error(data.error || 'Authentication failed');
-      
+
       return data.assignment;
     }
 
@@ -442,7 +893,7 @@
     function loadCRFromStorage() {
       const email = localStorage.getItem('cr_email');
       const assignmentStr = localStorage.getItem('cr_assignment');
-      
+
       if (email && assignmentStr) {
         try {
           const assignment = JSON.parse(assignmentStr);
@@ -509,8 +960,8 @@
             <div class="name">${s.name}</div>
           </div>
           <div class="pa">
-            <div class="radio ${choice==='P'?'onP':''}" data-action="P" data-reg="${s.regNo}">P</div>
-            <div class="radio ${choice==='A'?'onA':''}" data-action="A" data-reg="${s.regNo}">A</div>
+            <div class="radio ${choice === 'P' ? 'onP' : ''}" data-action="P" data-reg="${s.regNo}">P</div>
+            <div class="radio ${choice === 'A' ? 'onA' : ''}" data-action="A" data-reg="${s.regNo}">A</div>
           </div>
         `;
         list.appendChild(row);
@@ -722,12 +1173,12 @@
       try {
         const assignment = await authenticateCR(email);
         saveCRToStorage(assignment);
-        
+
         loginStatus.textContent = '✅ Login successful!';
         loginStatus.style.color = 'var(--cui-success)';
-        
+
         loginBackdrop.style.display = 'none';
-        
+
         await initRoster();
         await restoreDraftLocal();
         render();
@@ -783,7 +1234,7 @@
 
       const payload = buildAttendanceJson();
       payload.facultyEmail = faculty;
-      
+
       emailStatus.textContent = '⏳ Submitting attendance...';
       sendEmail.disabled = true;
 
@@ -796,7 +1247,7 @@
         });
 
         emailStatus.textContent = '✅ Submitted! Email sent to you and faculty.';
-        
+
         locked = true;
         statusBadge.textContent = '🔒 Locked';
         await saveDraftLocal();
@@ -941,7 +1392,7 @@
         setTodayDate();
         await db.init();
         setNet();
-        
+
         // Check if CR is already logged in
         if (loadCRFromStorage()) {
           loginBackdrop.style.display = 'none';
@@ -968,4 +1419,5 @@
     }
   </script>
 </body>
+
 </html>
