@@ -1,25 +1,21 @@
 # Ignore all files by default
 **/**
 
-# Whitelist specific files to upload to Google Apps Script
-!appsscript.json
-!**/*.gs
-!**/*.js
-!**/*.html
-
-# Explicitly ignore standard project and git files
-.git/
-node_modules/
-.vscode/
-.idea/
+# Explicitly ignore non-GAS files
+.git/**
+node_modules/**
+.vscode/**
+.idea/**
+dist/**
+build/**
 *.md
-*.json
+.clasp.json
+.claspignore
 package.json
 package-lock.json
 LICENSE
-.clasp.json
-.claspignore
 
-# Ignore frontend build artifacts if any
-dist/
-build/
+# Whitelist GAS files (later rules override earlier ones)
+!appsscript.json
+!**/*.gs
+!**/*.html
