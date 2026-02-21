@@ -131,6 +131,12 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn.secondary {
             background: #e2e8f0;
             color: #2d3748;
@@ -256,6 +262,11 @@
             color: #c53030;
         }
 
+        .badge.orange {
+            background: rgba(237, 137, 54, 0.15);
+            color: #c05621;
+        }
+
         .instructions {
             background: #edf2f7;
             border-left: 4px solid #667eea;
@@ -301,6 +312,30 @@
             font-size: 36px;
             font-weight: 800;
         }
+
+        @media (max-width: 600px) {
+            .tabs {
+                gap: 8px;
+            }
+
+            .tab {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table th,
+            table td {
+                padding: 8px 6px;
+            }
+        }
     </style>
 </head>
 
@@ -314,6 +349,7 @@
         <div class="tabs">
             <button class="tab active" onclick="switchTab('scraper', this)">📥 Roster Scraper</button>
             <button class="tab" onclick="switchTab('rosters', this)">📋 View Rosters</button>
+            <button class="tab" onclick="switchTab('history', this)">📝 Attendance History</button>
             <button class="tab" onclick="switchTab('unlock', this)">🔓 Unlock Attendance</button>
             <button class="tab" onclick="switchTab('addStudent', this)">➕ Add Student</button>
             <button class="tab" onclick="switchTab('crs', this)">👥 Manage CRs</button>
@@ -389,7 +425,17 @@
                 </div>
             </div>
 
-            <!-- TAB 3: UNLOCK ATTENDANCE -->
+            <!-- TAB 3: ATTENDANCE HISTORY -->
+            <div id="history" class="tab-pane">
+                <div class="card">
+                    <h3>📝 Attendance History</h3>
+                    <p>View all submitted attendance records stored in Drive</p>
+                    <button class="btn" onclick="loadAttendanceHistory()">🔄 Refresh</button>
+                    <div id="attendanceList"></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: UNLOCK ATTENDANCE -->
             <div id="unlock" class="tab-pane">
                 <div class="card">
                     <h3>🔓 Unlock Attendance</h3>
@@ -411,12 +457,12 @@
                         <label>Date</label>
                         <input type="date" id="unlockDate" />
                     </div>
-                    <button class="btn danger" onclick="unlockAttendance()">🔓 Unlock</button>
+                    <button class="btn danger" id="unlockBtn" onclick="unlockAttendance()">🔓 Unlock</button>
                     <div id="unlockStatus"></div>
                 </div>
             </div>
 
-            <!-- TAB 4: ADD STUDENT -->
+            <!-- TAB 5: ADD STUDENT -->
             <div id="addStudent" class="tab-pane">
                 <div class="card">
                     <h3>➕ Add Student to Roster</h3>
@@ -442,12 +488,12 @@
                         <label>Student Name</label>
                         <input type="text" id="addName" placeholder="JOHN DOE" />
                     </div>
-                    <button class="btn" onclick="addStudent()">➕ Add Student</button>
+                    <button class="btn" id="addStudentBtn" onclick="addStudentToRoster()">➕ Add Student</button>
                     <div id="addStatus"></div>
                 </div>
             </div>
 
-            <!-- TAB 5: MANAGE CRs -->
+            <!-- TAB 6: MANAGE CRs -->
             <div id="crs" class="tab-pane">
                 <div class="card">
                     <h3>👥 CR Management</h3>
@@ -505,6 +551,7 @@
 
             if (tabName === 'rosters') loadRosters();
             if (tabName === 'crs') loadCRs();
+            if (tabName === 'history') loadAttendanceHistory();
         }
 
         // ============================================
@@ -622,6 +669,63 @@
         }
 
         // ============================================
+        // ATTENDANCE HISTORY
+        // ============================================
+        async function loadAttendanceHistory() {
+            const container = document.getElementById('attendanceList');
+            container.innerHTML = '<div class="alert info">⏳ Loading attendance records...</div>';
+
+            try {
+                const res = await fetch(`${API_URL}?action=listAttendance&secret=${encodeURIComponent(SECRET)}&_t=${Date.now()}`);
+                const data = await res.json();
+
+                if (!data.ok) {
+                    container.innerHTML = `<div class="alert error">❌ ${data.error || 'Unknown error'}</div>`;
+                    return;
+                }
+
+                const records = data.attendance || [];
+
+                if (!records.length) {
+                    container.innerHTML = '<div class="alert info">ℹ️ No attendance records submitted yet.</div>';
+                    return;
+                }
+
+                let html = `<div class="alert success" style="margin-top:16px">📊 ${records.length} attendance record(s) found</div>`;
+                html += `<table>
+          <thead><tr>
+            <th>Date</th><th>Course</th><th>Section</th>
+            <th>Present</th><th>Absent</th><th>Total</th>
+            <th>CR</th><th>Status</th><th>Actions</th>
+          </tr></thead><tbody>`;
+
+                records.forEach(r => {
+                    const statusBadge = r.unlocked
+                        ? '<span class="badge orange">🔓 Unlocked</span>'
+                        : '<span class="badge green">🔒 Locked</span>';
+
+                    html += `<tr>
+            <td>${r.date}</td>
+            <td>${r.course || r.courseId}</td>
+            <td><span class="badge blue">${r.section}</span></td>
+            <td style="color:#2f855a;font-weight:700">${r.present}</td>
+            <td style="color:#c53030;font-weight:700">${r.absent}</td>
+            <td>${r.total}</td>
+            <td style="font-size:12px">${r.crEmail || '-'}</td>
+            <td>${statusBadge}</td>
+            <td><a class="btn secondary" style="padding:6px 12px;font-size:12px;text-decoration:none;" href="${r.fileUrl}" target="_blank">View</a></td>
+          </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
+            }
+        }
+
+        // ============================================
         // MANAGE CRs
         // ============================================
         async function assignCR() {
@@ -689,44 +793,92 @@
         }
 
         // ============================================
-        // UNLOCK ATTENDANCE (stub)
+        // UNLOCK ATTENDANCE (wired to backend)
         // ============================================
-        function unlockAttendance() {
-            const courseId = document.getElementById('unlockCourseId').value;
+        async function unlockAttendance() {
+            const courseId = document.getElementById('unlockCourseId').value.trim();
             const section = document.getElementById('unlockSection').value;
             const date = document.getElementById('unlockDate').value;
+            const statusEl = document.getElementById('unlockStatus');
+            const btn = document.getElementById('unlockBtn');
 
             if (!courseId || !date) {
-                document.getElementById('unlockStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+                statusEl.innerHTML = '<div class="alert error">⚠️ Please fill Course ID and Date</div>';
                 return;
             }
 
-            document.getElementById('unlockStatus').innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
-            setTimeout(() => {
-                document.getElementById('unlockStatus').innerHTML =
-                    `<div class="alert success">✅ Unlocked Course ${courseId}, Section ${section}, Date ${date}</div>`;
-            }, 800);
+            statusEl.innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
+            btn.disabled = true;
+
+            try {
+                const params = new URLSearchParams({
+                    action: 'unlockAttendance',
+                    secret: SECRET,
+                    courseId,
+                    section,
+                    date
+                });
+
+                const res = await fetch(`${API_URL}?${params.toString()}`);
+                const data = await res.json();
+
+                if (data.ok) {
+                    statusEl.innerHTML = `<div class="alert success">✅ ${data.message}</div>`;
+                } else {
+                    statusEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // ============================================
-        // ADD STUDENT (stub)
+        // ADD STUDENT (wired to backend)
         // ============================================
-        function addStudent() {
-            const courseId = document.getElementById('addCourseId').value;
+        async function addStudentToRoster() {
+            const courseId = document.getElementById('addCourseId').value.trim();
             const section = document.getElementById('addSection').value;
-            const regNo = document.getElementById('addRegNo').value;
-            const name = document.getElementById('addName').value;
+            const regNo = document.getElementById('addRegNo').value.trim();
+            const name = document.getElementById('addName').value.trim();
+            const statusEl = document.getElementById('addStatus');
+            const btn = document.getElementById('addStudentBtn');
 
             if (!courseId || !regNo || !name) {
-                document.getElementById('addStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+                statusEl.innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
                 return;
             }
 
-            document.getElementById('addStatus').innerHTML = '<div class="alert info">⏳ Adding...</div>';
-            setTimeout(() => {
-                document.getElementById('addStatus').innerHTML =
-                    `<div class="alert success">✅ ${name} (${regNo}) added to Course ${courseId} Section ${section}</div>`;
-            }, 800);
+            statusEl.innerHTML = '<div class="alert info">⏳ Adding student...</div>';
+            btn.disabled = true;
+
+            try {
+                const params = new URLSearchParams({
+                    action: 'addStudent',
+                    secret: SECRET,
+                    courseId,
+                    section,
+                    regNo,
+                    name
+                });
+
+                const res = await fetch(`${API_URL}?${params.toString()}`);
+                const data = await res.json();
+
+                if (data.ok) {
+                    statusEl.innerHTML = `<div class="alert success">✅ ${data.addedStudent.name} (${data.addedStudent.regNo}) added! Roster now has ${data.totalStudents} students.</div>`;
+                    // Clear inputs
+                    document.getElementById('addRegNo').value = '';
+                    document.getElementById('addName').value = '';
+                } else {
+                    statusEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // ============================================

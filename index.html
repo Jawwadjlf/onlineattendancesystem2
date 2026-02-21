@@ -570,6 +570,8 @@
             <div class="s" id="crInfo">Loading...</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center;">
+            <div id="pendingBadge" class="pill badge offline" style="display:none;cursor:pointer"
+              title="Pending submissions waiting to sync">🔄 0 pending</div>
             <div id="netPill" class="pill badge online">🟢 Online</div>
             <button id="userBtn" class="mini-btn" title="User profile">👤</button>
           </div>
@@ -1042,7 +1044,9 @@
 
     function buildAttendanceJson() {
       return {
+        type: 'attendance',
         course: rosterMeta.courseName || document.getElementById('course').textContent,
+        courseId: rosterMeta.courseId || currentUser.courseId,
         courseValue: rosterMeta.courseId || currentUser.courseId,
         section: rosterMeta.section || currentUser.section,
         date: document.getElementById('dateInput').value,
@@ -1260,19 +1264,19 @@
       sendEmail.disabled = true;
 
       try {
-        const res = await fetch(`${APPSCRIPT_URL}?action=submitAttendance`, {
+        const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ROSTER_SECRET)}`, {
           method: 'POST',
           body: JSON.stringify(payload)
         });
 
         // GAS POST returns opaque or JSON — treat any completion as success
-        let result = { success: true };
+        let result = { ok: true };
         try {
           const text = await res.text();
           if (text.trim().startsWith('{')) result = JSON.parse(text);
         } catch (_) { }
 
-        if (result.success === false) throw new Error(result.error || 'Submission failed');
+        if (result.ok === false) throw new Error(result.error || 'Submission failed');
 
         emailStatus.textContent = '✅ Submitted! Email sent to faculty.';
 
@@ -1350,18 +1354,18 @@
 
         for (const sub of pending) {
           try {
-            const res = await fetch(`${APPSCRIPT_URL}?action=submitAttendance`, {
+            const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ROSTER_SECRET)}`, {
               method: 'POST',
               body: JSON.stringify(sub.payload)
             });
 
             const text = await res.text();
-            let result = { success: true };
+            let result = { ok: true };
             try {
               if (text.trim().startsWith('{')) result = JSON.parse(text);
             } catch (_) { }
 
-            if (result.success !== false) {
+            if (result.ok !== false) {
               sub.status = 'synced';
               sub.syncedAt = Date.now();
               await db.saveSubmission(sub);
@@ -1406,8 +1410,11 @@
           status: 'pending'
         });
 
+        await updatePendingBadge();
+
         if (isOnline) {
           await syncPendingSubmissions();
+          await updatePendingBadge();
         }
       } catch (e) {
         console.warn('Submission save failed:', e);
@@ -1427,10 +1434,30 @@
       syncRoster();
     });
 
+    // =====================
+    // PENDING SYNC BADGE
+    // =====================
+    const pendingBadge = document.getElementById('pendingBadge');
+
+    async function updatePendingBadge() {
+      try {
+        const subs = await db.getSubmissions();
+        const pending = subs.filter(s => s.status === 'pending');
+        if (pending.length > 0) {
+          pendingBadge.textContent = `🔄 ${pending.length} pending`;
+          pendingBadge.style.display = 'inline-flex';
+        } else {
+          pendingBadge.style.display = 'none';
+        }
+      } catch (e) {
+        console.warn('Badge update failed:', e);
+      }
+    }
+
     window.addEventListener('online', () => {
       isOnline = true;
       setNet();
-      syncPendingSubmissions();
+      syncPendingSubmissions().then(() => updatePendingBadge());
     });
 
     window.addEventListener('offline', () => {
@@ -1453,6 +1480,7 @@
           await initRoster();
           await restoreDraftLocal();
           render();
+          await updatePendingBadge();
           console.log('✅ App initialized. CR:', currentUser.email);
         } else {
           // Show login modal
