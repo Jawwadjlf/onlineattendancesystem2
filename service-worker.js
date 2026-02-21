@@ -5,8 +5,7 @@
 const CACHE_NAME = 'cr-attendance-v1';
 const urlsToCache = [
   './',
-  './index.html',
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js'
+  './index.html'
 ];
 
 // Install event - cache files

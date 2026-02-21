@@ -11,8 +11,6 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
 
-  <!-- Chart.js for Analytics -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
   <style>
     :root {
@@ -641,17 +639,13 @@
           <div class="list" id="list"></div>
         </div>
 
-        <!-- ANALYTICS TAB (Collapsible) -->
-        <div class="card" id="analyticsCard" style="display:none;">
-          <div class="h" style="margin-bottom:10px;">📊 Analytics</div>
-          <canvas id="attendanceChart" style="max-height:200px;"></canvas>
-        </div>
+
       </div>
 
       <div class="footer">
         <div class="controls" style="margin-bottom:10px; font-size:12px;">
           <button class="btn" id="emailAttendanceBtn" title="Email attendance to faculty">📧 Email Attendance</button>
-          <button class="btn" id="analyticsBtn" title="View analytics">📊 Analytics</button>
+
         </div>
 
         <button id="submit" class="submitIconBtn">
@@ -844,8 +838,7 @@
     const submitBtn = document.getElementById('submit');
     const status = document.getElementById('status');
     const statusBadge = document.getElementById('statusBadge');
-    const analyticsBtn = document.getElementById('analyticsBtn');
-    const analyticsCard = document.getElementById('analyticsCard');
+
     const syncRosterBtn = document.getElementById('syncRosterBtn');
 
     const loginBackdrop = document.getElementById('loginBackdrop');
@@ -875,8 +868,6 @@
 
       const url = `${ROSTER_URL}?${params.toString()}`;
 
-      // Google Apps Script redirects can return HTML in cross-origin contexts
-      // We need to handle this explicitly
       let text;
       try {
         const res = await fetch(url, { redirect: 'follow' });
@@ -885,18 +876,14 @@
         throw new Error('Network error: ' + e.message);
       }
 
-      // If the response is HTML (GAS redirect page), extract the actual data URL
       let data;
       if (text.trim().startsWith('{')) {
-        // Direct JSON response
         data = JSON.parse(text);
       } else if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        // GAS returned an HTML redirect page — try to extract the URL
-        console.warn('GAS returned HTML instead of JSON. Attempting workaround...');
-        console.log('Response preview:', text.substring(0, 200));
-        throw new Error('Google Apps Script returned HTML. Open your GAS project → Deploy → Manage deployments → Edit → Set "Who has access" to "Anyone" → Save.');
+        console.warn('GAS returned HTML instead of JSON.');
+        throw new Error('Google Apps Script returned HTML. Ensure the script is deployed as "Web App" and "Who has access" is set to "Anyone".');
       } else {
-        throw new Error('Unexpected response format');
+        throw new Error('Unexpected response format from server.');
       }
 
       if (!data.ok) throw new Error(data.error || 'Failed to fetch CR list');
@@ -1101,7 +1088,13 @@
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
-      const data = await res.json();
+
+      const text = await res.text();
+      if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+        throw new Error('Server returned HTML. Check GAS deployment permissions.');
+      }
+
+      const data = JSON.parse(text);
       if (data.ok === false && data.error) {
         throw new Error(data.error);
       }
@@ -1327,12 +1320,67 @@
 
     submitBtn.addEventListener('click', () => {
       if (locked) return;
+
+      // Calculate marks count for confirmation
+      let p = 0, a = 0;
+      for (const v of marks.values()) (v === 'P' ? p++ : a++);
+      const unmarked = students.length - p - a;
+
+      if (unmarked > 0) {
+        if (!confirm(`Warning: ${unmarked} students are not marked. Continue?`)) return;
+      }
+
       submitBackdrop.style.display = 'flex';
     });
 
     cancelSubmit.addEventListener('click', () => {
       submitBackdrop.style.display = 'none';
     });
+
+    async function syncPendingSubmissions() {
+      if (!isOnline) return;
+
+      try {
+        const subs = await db.getSubmissions();
+        const pending = subs.filter(s => s.status === 'pending');
+
+        if (pending.length === 0) return;
+
+        status.textContent = `⏳ Syncing ${pending.length} pending submission(s)...`;
+
+        for (const sub of pending) {
+          try {
+            const res = await fetch(`${APPSCRIPT_URL}?action=submitAttendance`, {
+              method: 'POST',
+              body: JSON.stringify(sub.payload)
+            });
+
+            const text = await res.text();
+            let result = { success: true };
+            try {
+              if (text.trim().startsWith('{')) result = JSON.parse(text);
+            } catch (_) { }
+
+            if (result.success !== false) {
+              sub.status = 'synced';
+              sub.syncedAt = Date.now();
+              await db.saveSubmission(sub);
+            }
+          } catch (err) {
+            console.warn('Sync failed for sub:', sub.id, err);
+          }
+        }
+
+        const remaining = (await db.getSubmissions()).filter(s => s.status === 'pending').length;
+        if (remaining === 0) {
+          status.textContent = '✅ All submissions synced successfully.';
+        } else {
+          status.textContent = `🟡 ${remaining} submission(s) still pending sync.`;
+        }
+      } catch (e) {
+        console.error('Sync failed:', e);
+      }
+    }
 
     confirmSubmit.addEventListener('click', async () => {
       const payload = buildAttendanceJson();
@@ -1346,16 +1394,21 @@
 
       [isOnlineChk, notes, search, allP, allA, reset, submitBtn].forEach(el => el.disabled = true);
 
-      status.textContent = isOnline ? '✅ Submitted successfully!' : '🟡 Saved offline, will submit when online.';
+      status.textContent = isOnline ? '✅ Submission initiated...' : '🟡 Saved offline, will submit when online.';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
 
       try {
+        const subId = Date.now().toString();
         await db.saveSubmission({
-          id: Date.now().toString(),
+          id: subId,
           payload,
-          syncedAt: Date.now(),
-          status: isOnline ? 'synced' : 'pending'
+          createdAt: Date.now(),
+          status: 'pending'
         });
+
+        if (isOnline) {
+          await syncPendingSubmissions();
+        }
       } catch (e) {
         console.warn('Submission save failed:', e);
       }
@@ -1368,41 +1421,7 @@
       }
     });
 
-    analyticsBtn.addEventListener('click', () => {
-      analyticsCard.style.display = analyticsCard.style.display === 'none' ? 'block' : 'none';
-      if (analyticsCard.style.display === 'block') {
-        const ctx = document.getElementById('attendanceChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Session 1', 'Session 2', 'Session 3', 'Session 4', 'Session 5'],
-            datasets: [
-              {
-                label: 'Present',
-                data: [24, 22, 25, 23, 24],
-                backgroundColor: 'rgba(34, 194, 107, 0.2)',
-                borderColor: 'rgb(34, 194, 107)',
-                borderWidth: 1
-              },
-              {
-                label: 'Absent',
-                data: [2, 4, 1, 3, 2],
-                backgroundColor: 'rgba(189, 56, 80, 0.2)',
-                borderColor: 'rgb(189, 56, 80)',
-                borderWidth: 1
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-              y: { beginAtZero: true, max: 28 }
-            }
-          }
-        });
-      }
-    });
+
 
     syncRosterBtn.addEventListener('click', () => {
       syncRoster();
@@ -1411,7 +1430,7 @@
     window.addEventListener('online', () => {
       isOnline = true;
       setNet();
-      status.textContent = '🟢 Online! Syncing pending submissions...';
+      syncPendingSubmissions();
     });
 
     window.addEventListener('offline', () => {
