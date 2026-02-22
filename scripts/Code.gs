@@ -41,6 +41,7 @@ function doGet(e) {
       if (action === 'getCRAssignment')  return getCRAssignmentResponse(e.parameter.email);
       if (action === 'assignCR')         return assignCR(e.parameter.email, e.parameter.courseId, e.parameter.section);
       if (action === 'listCRs')          return listCRs();
+      if (action === 'deleteCR')         return deleteCR(e.parameter.email);
       if (action === 'getLatestEnrollment') return getLatestEnrollment(e.parameter.courseId, e.parameter.section, e.parameter.crEmail);
       if (action === 'deleteEnrollment')    return deleteEnrollment(e.parameter.fileId);
       if (action === 'listAttendance')   return listAttendance();
@@ -505,6 +506,17 @@ function listCRs() {
     return jsonResponse({ ok: true, crs });
   } catch (err) {
     return jsonResponse({ ok: false, error: err.message });
+  }
+}
+
+
+function deleteCR(email) {
+  try {
+    if (!email) throw new Error('Email missing');
+    PropertiesService.getScriptProperties().deleteProperty(`cr_${email}`);
+    return jsonResponse({ ok: true, message: `CR ${email} deleted successfully.` });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: `Delete failed: ${err.message}` });
   }
 }
 

@@ -690,7 +690,7 @@
 
                 let html = `<table>
           <thead><tr>
-            <th>Email</th><th>Course ID</th><th>Section</th><th>Assigned At</th>
+            <th>Email</th><th>Course ID</th><th>Section</th><th>Assigned At</th><th>Actions</th>
           </tr></thead><tbody>`;
 
                 data.crs.forEach(cr => {
@@ -699,6 +699,9 @@
             <td>${cr.courseId}</td>
             <td><span class="badge blue">${cr.section}</span></td>
             <td>${cr.assignedAt ? cr.assignedAt.split('T')[0] : '-'}</td>
+            <td>
+              <button class="btn danger" style="padding:4px 8px;font-size:11px;" onclick="deleteCR('${cr.email}')">🗑️ Delete</button>
+            </td>
           </tr>`;
                 });
 
@@ -707,6 +710,24 @@
 
             } catch (err) {
                 container.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
+            }
+        }
+
+        async function deleteCR(email) {
+            if (!confirm(`⚠️ Are you sure you want to delete CR: ${email}?\n\nThey will lose access immediately.`)) return;
+
+            try {
+                const res = await fetch(`${API_URL}?action=deleteCR&email=${encodeURIComponent(email)}&secret=${encodeURIComponent(SECRET)}`);
+                const data = await res.json();
+
+                if (data.ok) {
+                    alert('✅ CR deleted successfully.');
+                    loadCRs();
+                } else {
+                    alert('❌ Delete failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('❌ Network error: ' + err.message);
             }
         }
 
