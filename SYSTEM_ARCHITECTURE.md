@@ -14,11 +14,11 @@
 
 ## System Overview
 
-**The CR Attendance System** is a secure, offline-first Progressive Web App (PWA) that allows Class Representatives to mark attendance independently while maintaining complete faculty authority over roster management, submissions, and portal integration.
+**The CR Attendance System** is a secure, offline-first Progressive Web App (PWA) that allows Class Representatives to mark attendance independently while maintaining complete faculty authority over enrollment management, submissions, and portal integration.
 
 ### Key Principles
 - ✅ **Offline-First**: Works on students' phones without internet
-- ✅ **Faculty-Controlled**: CR cannot access portal or change section/roster
+- ✅ **Faculty-Controlled**: CR cannot access portal or change section/enrollment
 - ✅ **Auditable**: All actions logged with timestamps
 - ✅ **Simple Deployment**: Minimal infrastructure, GitHub Pages + Google Apps Script
 - ✅ **User-Friendly**: Single-click install on Android, PWA on iOS
@@ -30,16 +30,16 @@
 ### 👨‍🏫 Faculty (Muhammad Jawad Rafeeq)
 
 **Authority & Control**
-- Own the official roster and section data
-- Extract roster from faculty portal (manual export or script automation)
-- Push roster to cloud (Google Drive / Apps Script)
+- Own the official enrollment and section data
+- Extract enrollment from faculty portal (manual export or script automation)
+- Push enrollment to cloud (Google Drive / Apps Script)
 - Review attendance submitted by CR
 - Perform final submission to faculty portal (no auto-submission)
 - Override or reject attendance if needed
 
 **Tools**
-- Faculty Portal (read/extract roster)
-- Admin Interface (push roster, review submissions)
+- Faculty Portal (read/extract enrollment)
+- Admin Interface (push enrollment, review submissions)
 - Email notifications (attendance ready for submission)
 
 ### 👥 Class Representative (CR) / Student Lead
@@ -52,7 +52,7 @@
 
 **Restrictions**
 - Cannot change section
-- Cannot edit roster (add/remove/rename students)
+- Cannot edit enrollment (add/remove/rename students)
 - Cannot access faculty portal
 - Cannot resubmit or edit after lock
 - Cannot view past attendance records
@@ -65,7 +65,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Faculty Portal (Third-party)               │
 │                    (COMSATS Web Application)                     │
-│                     [Manual Extract Roster]                      │
+│                     [Manual Extract Enrollment]                   │
 └────────────────────────────┬────────────────────────────────────┘
                               │ (Manual copy-paste or scheduled script)
                               ↓
@@ -74,16 +74,16 @@
 │              (Google Apps Script Web App)                        │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Roster Push Screen                                      │   │
+│  │  Enrollment Push Screen                                   │   │
 │  │  - Paste student list from portal                       │   │
 │  │  - Select course, section                              │   │
-│  │  - Generate & save roster JSON                         │   │
+│  │  - Generate & save enrollment JSON                      │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Roster API Endpoint                                     │   │
-│  │  GET /getRoster?courseId=30000&section=A               │   │
-│  │  Returns latest roster JSON                            │   │
+│  │  Enrollment API Endpoint                                  │   │
+│  │  GET /getLatestEnrollment?courseId=30000&section=A      │   │
+│  │  Returns latest enrollment JSON                         │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────┐   │
@@ -94,18 +94,18 @@
 │  └─────────────────────────────────────────────────────────┘   │
 └──────────┬───────────────────────────────────┬──────────────────┘
            │                                   │
-      [GET Roster]                      [POST Attendance]
+      [GET Enrollment]                      [POST Attendance]
            │                                   ↑
            ↓                                   │
 ┌─────────────────────────────────────────────────────────────────┐
 │              Cloud Storage (Google Drive + APIs)                │
 │                                                                   │
-│  - roster_{courseId}_{section}.json (latest version)            │
+│  - enrollment_course_{courseId}_section_{section}_{date}.json (latest version)            │
 │  - attendance_{date}_{section}.json (submissions)               │
 │  - audit_log.txt (all submissions + timestamps)                 │
 └─────────────────────────────────────────────────────────────────┘
            ↑
-           │ (Sync on app load)
+           │ (Sync on app load / Sync Enrollment button)
            │
 ┌─────────────────────────────────────────────────────────────────┐
 │                    CR PWA (Student Phone)                        │
@@ -141,12 +141,14 @@
 
 ### File Structure
 ```
-cr-app/
-├── index.html          # Main PWA page
-├── app.js              # Application logic
-├── sw.js               # Service Worker (offline caching)
+OnlineAttendanceSystem/
+├── index.html          # Main PWA page (CR App)
+├── service-worker.js   # Service Worker (offline caching)
 ├── manifest.json       # PWA manifest (installable)
-└── README.md           # User guide
+├── scripts/
+│   ├── Code.gs         # Backend logic (Google Apps Script)
+│   └── admin-panel.html # Faculty Admin Interface
+└── SYSTEM_ARCHITECTURE.md # System documentation
 ```
 
 ### Key Features
@@ -154,16 +156,21 @@ cr-app/
 #### 1. Offline Support
 - **Service Worker**: Caches all app assets on first load
 - **IndexedDB**: Stores pending submissions (survives crashes)
-- **localStorage**: Saves draft state + lock flag
+- **localStorage**: Saves draft state + assignment details
 - **Network Detection**: Shows online/offline status in real-time
 
-#### 2. Roster Sync
+#### 2. Auto-Unlock on Date Change
+- When the CR selects a date, the app checks the local database for existing submissions.
+- If no submission is found for that date, the app automatically **unlocks** the UI.
+- If a submission exists, the UI is **locked** to prevent accidental modifications.
+
+#### 3. Enrollment Sync
 ```javascript
 // On app load
-GET https://apps.google.com/macros/.../usercontent?action=getRoster
+GET https://apps.google.com/macros/.../exec?action=getLatestEnrollment
 ```
-- Fetches latest roster from Admin Interface
-- Falls back to cached roster if offline
+- Fetches latest enrollment from Admin Interface
+- Falls back to cached enrollment if offline
 - Shows sync status to CR
 
 #### 3. Attendance Marking
@@ -188,12 +195,10 @@ GET https://apps.google.com/macros/.../usercontent?action=getRoster
 
 ### Data Persistence
 
-**localStorage Keys**
-```javascript
-roster_cache                    // Cached roster JSON
-attendance_draft               // Current form state
-attendance_locked              // Boolean: is submitted
-```
+**IndexedDB**
+- `enrollment`: stores latest enrollment data
+- `drafts`: saves current form progress
+- `attendance`: stores historical submissions
 
 **IndexedDB Structure**
 ```javascript
@@ -238,7 +243,7 @@ Store: submissions
 
 ### Components
 
-#### 1. Roster Push Interface
+#### 1. Enrollment Push Interface
 ```
 /admin/index.html
 
@@ -250,27 +255,20 @@ Inputs:
 
 Action:
 - Parse student list
-- Generate roster JSON
+- Generate enrollment JSON
 - Save to Google Drive
 - Generate shareable API endpoint
 ```
 
-#### 2. Roster API Endpoint
+#### 2. Enrollment API Endpoint
 ```javascript
 // Google Apps Script Web App
 function doGet(e) {
   const action = e.parameter.action;
   
-  if (action === 'getRoster') {
-    const courseId = e.parameter.courseId;   // e.g., "30000"
-    const section = e.parameter.section;      // e.g., "A"
-    
-    const file = DriveApp.getFilesByName(`roster_${courseId}_${section}.json`).next();
-    const roster = JSON.parse(file.getBlob().getDataAsString());
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(roster))
-      .setMimeType(ContentService.MimeType.JSON);
+  if (action === 'getLatestEnrollment') {
+    const fresh = fetchEnrollmentFromServer(); // Internal logic
+    return jsonResponse(fresh);
   }
 }
 ```
@@ -303,25 +301,20 @@ function doPost(e) {
 
 ## Data Contracts
 
-### 1. Roster JSON (Admin → CR App)
+### 1. Enrollment JSON (Admin → CR App)
 ```json
 {
   "courseId": 30000,
   "course": "CSC462 – Artificial Intelligence",
   "section": "A",
-  "students": [
+  "enrollment": [
     {
-      "reg": "CIIT/FA22-BCS-008/VHR",
-      "displayReg": "FA22-BCS-008",
+      "regNo": "CIIT/FA22-BCS-008/VHR",
       "name": "AQSA HANIF"
     },
-    {
-      "reg": "CIIT/FA22-BCS-078/VHR",
-      "displayReg": "FA22-BCS-078",
-      "name": "MUHAMMAD SALMAN"
-    }
+    ...
   ],
-  "pushedAt": "2026-02-06T08:55:00Z"
+  "extractedAt": "2026-02-06T08:55:00Z"
 }
 ```
 
@@ -367,14 +360,15 @@ function doPost(e) {
 
 **Option A: GitHub Pages** (Recommended)
 ```bash
-# Push cr-app/ folder to GitHub
-git add cr-app/
-git commit -m "Deploy CR PWA"
-git push
+# Push to GitHub
+git add .
+git commit -m "Deploy to new repository"
+git remote set-url origin https://github.com/Jawwadjlf/onlineattendancesystem2.git
+git push -u origin main
 
 # Enable GitHub Pages in repo settings:
-# Settings → Pages → Source: main branch /cr-app folder
-# Your app will be at: https://jawwadjlf.github.io/OnlineAttendanceSystem/cr-app/
+# Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: main / (root)
+# Your app will be at: https://jawwadjlf.github.io/onlineattendancesystem2/
 ```
 
 **Option B: Netlify**
@@ -388,7 +382,7 @@ netlify deploy --dir=cr-app
 2. Create new project
 3. Copy backend code:
    - `Code.gs` - Main backend logic
-   - `Admin.html` - Roster push interface
+   - `Admin.html` - Enrollment push interface
 4. Deploy as Web App:
    - Execute as: Your email
    - Who has access: Anyone
@@ -396,9 +390,9 @@ netlify deploy --dir=cr-app
 
 ### Step 3: Update Configuration
 
-**In `cr-app/app.js`**, update endpoints:
+**In `index.html`**, update endpoints:
 ```javascript
-Roster_URL: 'https://script.google.com/macros/d/YOUR_DEPLOYMENT_ID/usercontent?action=getRoster',
+ENROLLMENT_URL: 'https://script.google.com/macros/s/.../exec',
 ```
 
 **In CR app, users must know:**
@@ -408,12 +402,12 @@ Roster_URL: 'https://script.google.com/macros/d/YOUR_DEPLOYMENT_ID/usercontent?a
 ### Step 4: Test Workflow
 
 1. **As Faculty**: 
-   - Push test roster via Admin Interface
-   - Verify roster JSON created in Google Drive
+   - Push test enrollment via Admin Interface
+   - Verify enrollment JSON created in Google Drive
 
 2. **As CR**:
    - Open PWA in browser/mobile
-   - Verify roster loads
+   - Verify enrollment loads
    - Mark attendance
    - Submit & Lock
    - Verify JSON in Google Drive + email received
@@ -428,7 +422,7 @@ Roster_URL: 'https://script.google.com/macros/d/YOUR_DEPLOYMENT_ID/usercontent?a
 - CR never logs into faculty portal
 - No passwords or tokens stored locally
 
-✅ **Immutable Roster**
+✅ **Immutable Enrollment**
 - Section & student list read-only in CR app
 - Can only be changed by faculty push
 
@@ -467,19 +461,19 @@ Roster_URL: 'https://script.google.com/macros/d/YOUR_DEPLOYMENT_ID/usercontent?a
 ## FAQ & Troubleshooting
 
 ### Q: What if CR loses internet during marking?
-**A**: App works completely offline. All data saved locally (localStorage + IndexedDB). When online again, auto-syncs to cloud.
+**A**: App works completely offline. All data saved locally (IndexedDB). When online again, auto-syncs to cloud.
 
 ### Q: What if CR force-closes the app?
-**A**: Draft is auto-saved every 2 seconds. Reopen app and all data is restored.
+**A**: Draft is auto-saved. Reopen app and all data is restored.
 
 ### Q: Can CR edit after submitting?
-**A**: No. Submit & Lock disables all fields. Flag stored in localStorage prevents reopening.
+**A**: No. Submit & Lock disables all fields.
 
 ### Q: How do I pull attendance into faculty portal?
-**A**: Faculty manually imports JSON files from Google Drive into portal (or we can automate this with scheduled script).
+**A**: Faculty manually imports JSON files from Google Drive into portal.
 
-### Q: Can multiple CRs use same app?
-**A**: Currently designed for single CR. For multi-CR, add authentication step at app load.
+### Q: What if enrollment changes?
+**A**: Use the Sync Enrollment button to fetch the latest data from server.
 
 ---
 

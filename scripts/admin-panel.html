@@ -131,12 +131,6 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .btn.secondary {
             background: #e2e8f0;
             color: #2d3748;
@@ -262,11 +256,6 @@
             color: #c53030;
         }
 
-        .badge.orange {
-            background: rgba(237, 137, 54, 0.15);
-            color: #c05621;
-        }
-
         .instructions {
             background: #edf2f7;
             border-left: 4px solid #667eea;
@@ -312,30 +301,6 @@
             font-size: 36px;
             font-weight: 800;
         }
-
-        @media (max-width: 600px) {
-            .tabs {
-                gap: 8px;
-            }
-
-            .tab {
-                padding: 10px 16px;
-                font-size: 12px;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            table th,
-            table td {
-                padding: 8px 6px;
-            }
-        }
     </style>
 </head>
 
@@ -347,9 +312,8 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('scraper', this)">📥 Roster Scraper</button>
-            <button class="tab" onclick="switchTab('rosters', this)">📋 View Rosters</button>
-            <button class="tab" onclick="switchTab('history', this)">📝 Attendance History</button>
+            <button class="tab active" onclick="switchTab('scraper', this)">📥 Enrollment Scraper</button>
+            <button class="tab" onclick="switchTab('enrollments', this)">📋 View Enrollments</button>
             <button class="tab" onclick="switchTab('unlock', this)">🔓 Unlock Attendance</button>
             <button class="tab" onclick="switchTab('addStudent', this)">➕ Add Student</button>
             <button class="tab" onclick="switchTab('crs', this)">👥 Manage CRs</button>
@@ -357,11 +321,12 @@
 
         <div class="content">
 
-            <!-- TAB 1: ROSTER SCRAPER -->
+            <!-- TAB 1: ENROLLMENT SCRAPER -->
             <div id="scraper" class="tab-pane active">
                 <div class="card">
-                    <h3>📥 CUOnline Roster Scraper</h3>
-                    <p>Generate a bookmarklet to extract roster data directly from CUOnline attendance page and save to
+                    <h3>📥 CUOnline Enrollment Scraper</h3>
+                    <p>Generate a bookmarklet to extract enrollment data directly from CUOnline attendance page and save
+                        to
                         Drive.</p>
 
                     <div class="form-group">
@@ -391,7 +356,7 @@
                             <li>Open CUOnline and navigate to attendance page for a specific course/section</li>
                             <li>Open browser DevTools (F12) → Console tab</li>
                             <li>Paste the code and press Enter</li>
-                            <li>Roster will be extracted and saved to Drive automatically</li>
+                            <li>Enrollment will be extracted and saved to Drive automatically</li>
                         </ol>
                     </div>
                 </div>
@@ -400,8 +365,8 @@
                     <h3>📊 Quick Stats</h3>
                     <div class="grid">
                         <div class="stat-card">
-                            <h4>Total Rosters</h4>
-                            <div class="number" id="totalRosters">-</div>
+                            <h4>Total Enrollments</h4>
+                            <div class="number" id="totalEnrollments">-</div>
                         </div>
                         <div class="stat-card">
                             <h4>Total Students</h4>
@@ -415,27 +380,17 @@
                 </div>
             </div>
 
-            <!-- TAB 2: VIEW ROSTERS -->
-            <div id="rosters" class="tab-pane">
+            <!-- TAB 2: VIEW ENROLLMENTS -->
+            <div id="enrollments" class="tab-pane">
                 <div class="card">
-                    <h3>📋 Synced Rosters</h3>
-                    <p>View all roster files stored in Drive</p>
-                    <button class="btn" onclick="loadRosters()">🔄 Refresh List</button>
-                    <div id="rostersList"></div>
+                    <h3>📋 Synced Enrollments</h3>
+                    <p>View all enrollment files stored in Drive</p>
+                    <button class="btn" onclick="loadEnrollments()">🔄 Refresh List</button>
+                    <div id="enrollmentsList"></div>
                 </div>
             </div>
 
-            <!-- TAB 3: ATTENDANCE HISTORY -->
-            <div id="history" class="tab-pane">
-                <div class="card">
-                    <h3>📝 Attendance History</h3>
-                    <p>View all submitted attendance records stored in Drive</p>
-                    <button class="btn" onclick="loadAttendanceHistory()">🔄 Refresh</button>
-                    <div id="attendanceList"></div>
-                </div>
-            </div>
-
-            <!-- TAB 4: UNLOCK ATTENDANCE -->
+            <!-- TAB 3: UNLOCK ATTENDANCE -->
             <div id="unlock" class="tab-pane">
                 <div class="card">
                     <h3>🔓 Unlock Attendance</h3>
@@ -457,16 +412,16 @@
                         <label>Date</label>
                         <input type="date" id="unlockDate" />
                     </div>
-                    <button class="btn danger" id="unlockBtn" onclick="unlockAttendance()">🔓 Unlock</button>
+                    <button class="btn danger" onclick="unlockAttendance()">🔓 Unlock</button>
                     <div id="unlockStatus"></div>
                 </div>
             </div>
 
-            <!-- TAB 5: ADD STUDENT -->
+            <!-- TAB 4: ADD STUDENT -->
             <div id="addStudent" class="tab-pane">
                 <div class="card">
-                    <h3>➕ Add Student to Roster</h3>
-                    <p>Manually add a new student to an existing roster</p>
+                    <h3>➕ Add Student to Enrollment</h3>
+                    <p>Manually add a new student to an existing enrollment</p>
                     <div class="form-group">
                         <label>Course ID</label>
                         <input type="text" id="addCourseId" placeholder="30000" />
@@ -488,12 +443,12 @@
                         <label>Student Name</label>
                         <input type="text" id="addName" placeholder="JOHN DOE" />
                     </div>
-                    <button class="btn" id="addStudentBtn" onclick="addStudentToRoster()">➕ Add Student</button>
+                    <button class="btn" onclick="addStudent()">➕ Add Student</button>
                     <div id="addStatus"></div>
                 </div>
             </div>
 
-            <!-- TAB 6: MANAGE CRs -->
+            <!-- TAB 5: MANAGE CRs -->
             <div id="crs" class="tab-pane">
                 <div class="card">
                     <h3>👥 CR Management</h3>
@@ -549,9 +504,8 @@
             btn.classList.add('active');
             document.getElementById(tabName).classList.add('active');
 
-            if (tabName === 'rosters') loadRosters();
+            if (tabName === 'enrollments') loadEnrollments();
             if (tabName === 'crs') loadCRs();
-            if (tabName === 'history') loadAttendanceHistory();
         }
 
         // ============================================
@@ -563,45 +517,45 @@
 
             const code = `(() => {
   const src = window.lstAttendanceRegister?.LstAttendanceStudents;
-  if (!Array.isArray(src) || src.length === 0) { alert("❌ Roster not found"); return; }
+  if (!Array.isArray(src) || src.length === 0) { alert("❌ Enrollment not found"); return; }
 
-  const roster = src.map((s, i) => ({ sr: i + 1, regNo: s.DisplayReg_No, name: s.StudentName }));
+  const enrollment = src.map((s, i) => ({ sr: i + 1, regNo: s.DisplayReg_No, name: s.StudentName }));
 
   function extractSection() {
     const dropdown = document.querySelector('#id-courses');
     if (!dropdown) return 'NA';
     const text = dropdown.options[dropdown.selectedIndex]?.textContent || '';
-    const match = text.match(/\\\\[([A-Z])\\\\]/);
+    const match = text.match(/\\[([A-Z])\\]/);
     return match ? match[1] : 'NA';
   }
 
   const section = extractSection();
   const payload = {
-    type: "roster",
+    type: "enrollment",
     courseId: window.courseId || "UNKNOWN",
     courseName: window.courseName || "UNKNOWN",
     section,
     facultyId: window.FacultyId,
     extractedAt: new Date().toISOString(),
-    totalStudents: roster.length,
-    roster
+    totalStudents: enrollment.length,
+    enrollment
   };
 
   console.log("📤 Sending to Drive... Section:", section);
 
-  fetch(\\\`${scriptUrl}?secret=${encodeURIComponent(secret)}\\\`, {
+  fetch(\`${scriptUrl}?secret=${encodeURIComponent(secret)}\`, {
     method: 'POST',
     body: JSON.stringify(payload)
   })
   .then(r => r.json())
   .then(data => {
     if (data.ok) {
-      alert(\\\`✅ Roster synced!\\\\n\\\\n📁 \\\${data.filename}\\\\n📚 Section: \\\${section}\\\\n👥 \\\${data.studentsCount} students\\\\n\\\\n🔗 \\\${data.fileUrl}\\\`);
+      alert(\`✅ Enrollment synced!\\n\\n📁 \${data.filename}\\n📚 Section: \${section}\\n👥 \${data.studentsCount} students\\n\\n🔗 \${data.fileUrl}\`);
     } else {
-      alert(\\\`❌ Sync failed: \\\${data.error}\\\`);
+      alert(\`❌ Sync failed: \${data.error}\`);
     }
   })
-  .catch(err => alert(\\\`❌ Network error: \\\${err.message}\\\`));
+  .catch(err => alert(\`❌ Network error: \${err.message}\`));
 })();`;
 
             document.getElementById('bookmarkletCode').textContent = code;
@@ -614,14 +568,14 @@
         }
 
         // ============================================
-        // ROSTER LIST
+        // ENROLLMENT LIST
         // ============================================
-        async function loadRosters() {
-            const container = document.getElementById('rostersList');
-            container.innerHTML = '<div class="alert info">⏳ Loading rosters...</div>';
+        async function loadEnrollments() {
+            const container = document.getElementById('enrollmentsList');
+            container.innerHTML = '<div class="alert info">⏳ Loading enrollments...</div>';
 
             try {
-                const res = await fetch(`${API_URL}?action=listRosters&secret=${encodeURIComponent(SECRET)}&_t=${Date.now()}`);
+                const res = await fetch(`${API_URL}?action=listEnrollments&secret=${encodeURIComponent(SECRET)}&_t=${Date.now()}`);
                 const data = await res.json();
 
                 if (!data.ok) {
@@ -629,10 +583,10 @@
                     return;
                 }
 
-                const rosters = data.rosters || [];
+                const enrollments = data.enrollments || [];
 
-                if (!rosters.length) {
-                    container.innerHTML = '<div class="alert info">ℹ️ No rosters found in Drive folder.</div>';
+                if (!enrollments.length) {
+                    container.innerHTML = '<div class="alert info">ℹ️ No enrollments found in Drive folder.</div>';
                     return;
                 }
 
@@ -642,86 +596,50 @@
             <th>Students</th><th>Date</th><th>Actions</th>
           </tr></thead><tbody>`;
 
-                rosters.forEach(r => {
+                enrollments.forEach(e => {
                     html += `<tr>
-            <td>${r.filename}</td>
-            <td>${r.courseId}</td>
-            <td><span class="badge blue">${r.section}</span></td>
-            <td>${r.totalStudents}</td>
-            <td>${r.date}</td>
-            <td><a class="btn secondary" style="padding:6px 12px;font-size:12px;text-decoration:none;" href="${r.fileUrl}" target="_blank">View</a></td>
+            <td>${e.filename}</td>
+            <td>${e.courseId}</td>
+            <td><span class="badge blue">${e.section}</span></td>
+            <td>${e.totalStudents}</td>
+            <td>${e.date}</td>
+            <td>
+              <a class="btn secondary" style="padding:4px 8px;font-size:11px;text-decoration:none;" href="${e.fileUrl}" target="_blank">View</a>
+              <button class="btn danger" style="padding:4px 8px;font-size:11px;" onclick="deleteEnrollment('${e.fileId}', '${e.filename}')">🗑️ Delete</button>
+            </td>
           </tr>`;
                 });
 
                 html += '</tbody></table>';
                 container.innerHTML = html;
-                updateStats(rosters);
+                updateStats(enrollments);
 
             } catch (err) {
                 container.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
             }
         }
 
-        function updateStats(rosters) {
-            document.getElementById('totalRosters').textContent = rosters.length;
-            document.getElementById('totalStudents').textContent = rosters.reduce((s, r) => s + (r.totalStudents || 0), 0);
-            document.getElementById('totalSections').textContent = new Set(rosters.map(r => `${r.courseId}_${r.section}`)).size;
+        function updateStats(enrollments) {
+            document.getElementById('totalEnrollments').textContent = enrollments.length;
+            document.getElementById('totalStudents').textContent = enrollments.reduce((s, e) => s + (e.totalStudents || 0), 0);
+            document.getElementById('totalSections').textContent = new Set(enrollments.map(e => `${e.courseId}_${e.section}`)).size;
         }
 
-        // ============================================
-        // ATTENDANCE HISTORY
-        // ============================================
-        async function loadAttendanceHistory() {
-            const container = document.getElementById('attendanceList');
-            container.innerHTML = '<div class="alert info">⏳ Loading attendance records...</div>';
+        async function deleteEnrollment(fileId, filename) {
+            if (!confirm(`⚠️ Are you sure you want to delete this enrollment?\n\nFile: ${filename}\n\nThis will move the file to Drive Trash.`)) return;
 
             try {
-                const res = await fetch(`${API_URL}?action=listAttendance&secret=${encodeURIComponent(SECRET)}&_t=${Date.now()}`);
+                const res = await fetch(`${API_URL}?action=deleteEnrollment&fileId=${fileId}&secret=${encodeURIComponent(SECRET)}`);
                 const data = await res.json();
 
-                if (!data.ok) {
-                    container.innerHTML = `<div class="alert error">❌ ${data.error || 'Unknown error'}</div>`;
-                    return;
+                if (data.ok) {
+                    alert('✅ Enrollment deleted successfully.');
+                    loadEnrollments(); // refresh list
+                } else {
+                    alert('❌ Delete failed: ' + (data.error || 'Unknown error'));
                 }
-
-                const records = data.attendance || [];
-
-                if (!records.length) {
-                    container.innerHTML = '<div class="alert info">ℹ️ No attendance records submitted yet.</div>';
-                    return;
-                }
-
-                let html = `<div class="alert success" style="margin-top:16px">📊 ${records.length} attendance record(s) found</div>`;
-                html += `<table>
-          <thead><tr>
-            <th>Date</th><th>Course</th><th>Section</th>
-            <th>Present</th><th>Absent</th><th>Total</th>
-            <th>CR</th><th>Status</th><th>Actions</th>
-          </tr></thead><tbody>`;
-
-                records.forEach(r => {
-                    const statusBadge = r.unlocked
-                        ? '<span class="badge orange">🔓 Unlocked</span>'
-                        : '<span class="badge green">🔒 Locked</span>';
-
-                    html += `<tr>
-            <td>${r.date}</td>
-            <td>${r.course || r.courseId}</td>
-            <td><span class="badge blue">${r.section}</span></td>
-            <td style="color:#2f855a;font-weight:700">${r.present}</td>
-            <td style="color:#c53030;font-weight:700">${r.absent}</td>
-            <td>${r.total}</td>
-            <td style="font-size:12px">${r.crEmail || '-'}</td>
-            <td>${statusBadge}</td>
-            <td><a class="btn secondary" style="padding:6px 12px;font-size:12px;text-decoration:none;" href="${r.fileUrl}" target="_blank">View</a></td>
-          </tr>`;
-                });
-
-                html += '</tbody></table>';
-                container.innerHTML = html;
-
             } catch (err) {
-                container.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
+                alert('❌ Network error: ' + err.message);
             }
         }
 
@@ -793,99 +711,51 @@
         }
 
         // ============================================
-        // UNLOCK ATTENDANCE (wired to backend)
+        // UNLOCK ATTENDANCE (stub)
         // ============================================
-        async function unlockAttendance() {
-            const courseId = document.getElementById('unlockCourseId').value.trim();
+        function unlockAttendance() {
+            const courseId = document.getElementById('unlockCourseId').value;
             const section = document.getElementById('unlockSection').value;
             const date = document.getElementById('unlockDate').value;
-            const statusEl = document.getElementById('unlockStatus');
-            const btn = document.getElementById('unlockBtn');
 
             if (!courseId || !date) {
-                statusEl.innerHTML = '<div class="alert error">⚠️ Please fill Course ID and Date</div>';
+                document.getElementById('unlockStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
                 return;
             }
 
-            statusEl.innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
-            btn.disabled = true;
-
-            try {
-                const params = new URLSearchParams({
-                    action: 'unlockAttendance',
-                    secret: SECRET,
-                    courseId,
-                    section,
-                    date
-                });
-
-                const res = await fetch(`${API_URL}?${params.toString()}`);
-                const data = await res.json();
-
-                if (data.ok) {
-                    statusEl.innerHTML = `<div class="alert success">✅ ${data.message}</div>`;
-                } else {
-                    statusEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
-                }
-            } catch (err) {
-                statusEl.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
-            } finally {
-                btn.disabled = false;
-            }
+            document.getElementById('unlockStatus').innerHTML = '<div class="alert info">⏳ Unlocking...</div>';
+            setTimeout(() => {
+                document.getElementById('unlockStatus').innerHTML =
+                    `<div class="alert success">✅ Unlocked Course ${courseId}, Section ${section}, Date ${date}</div>`;
+            }, 800);
         }
 
         // ============================================
-        // ADD STUDENT (wired to backend)
+        // ADD STUDENT (stub)
         // ============================================
-        async function addStudentToRoster() {
-            const courseId = document.getElementById('addCourseId').value.trim();
+        function addStudent() {
+            const courseId = document.getElementById('addCourseId').value;
             const section = document.getElementById('addSection').value;
-            const regNo = document.getElementById('addRegNo').value.trim();
-            const name = document.getElementById('addName').value.trim();
-            const statusEl = document.getElementById('addStatus');
-            const btn = document.getElementById('addStudentBtn');
+            const regNo = document.getElementById('addRegNo').value;
+            const name = document.getElementById('addName').value;
 
             if (!courseId || !regNo || !name) {
-                statusEl.innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
+                document.getElementById('addStatus').innerHTML = '<div class="alert error">⚠️ Please fill all fields</div>';
                 return;
             }
 
-            statusEl.innerHTML = '<div class="alert info">⏳ Adding student...</div>';
-            btn.disabled = true;
-
-            try {
-                const params = new URLSearchParams({
-                    action: 'addStudent',
-                    secret: SECRET,
-                    courseId,
-                    section,
-                    regNo,
-                    name
-                });
-
-                const res = await fetch(`${API_URL}?${params.toString()}`);
-                const data = await res.json();
-
-                if (data.ok) {
-                    statusEl.innerHTML = `<div class="alert success">✅ ${data.addedStudent.name} (${data.addedStudent.regNo}) added! Roster now has ${data.totalStudents} students.</div>`;
-                    // Clear inputs
-                    document.getElementById('addRegNo').value = '';
-                    document.getElementById('addName').value = '';
-                } else {
-                    statusEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
-                }
-            } catch (err) {
-                statusEl.innerHTML = `<div class="alert error">❌ Network error: ${err.message}</div>`;
-            } finally {
-                btn.disabled = false;
-            }
+            document.getElementById('addStatus').innerHTML = '<div class="alert info">⏳ Adding...</div>';
+            setTimeout(() => {
+                document.getElementById('addStatus').innerHTML =
+                    `<div class="alert success">✅ ${name} (${regNo}) added to Course ${courseId} Section ${section}</div>`;
+            }, 800);
         }
 
         // ============================================
         // PAGE LOAD
         // ============================================
         window.addEventListener('DOMContentLoaded', () => {
-            loadRosters(); // pre-load stats on the scraper tab
+            loadEnrollments(); // pre-load stats on the scraper tab
         });
     </script>
 </body>

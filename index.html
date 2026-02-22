@@ -636,7 +636,7 @@
             <button class="btn primary" id="allP">Mark All Present</button>
             <button class="btn danger" id="allA">Mark All Absent</button>
             <button class="btn" id="reset">Reset</button>
-            <button class="btn" id="syncRosterBtn">🔄 Sync Roster</button>
+            <button class="btn" id="syncEnrollmentBtn">🔄 Sync Enrollment</button>
           </div>
           <div class="list" id="list"></div>
         </div>
@@ -723,9 +723,9 @@
     // =====================
     // GOOGLE APPS SCRIPT CONFIG
     // =====================
-    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgCtwM3Tb16W1bUbXPj3VuFohMH1HR2BvcQQe6oLJ4EGRrnN_qFG8fjDwyXHq5M5-nkw/exec";
-    const ROSTER_URL = "https://script.google.com/macros/s/AKfycbwgCtwM3Tb16W1bUbXPj3VuFohMH1HR2BvcQQe6oLJ4EGRrnN_qFG8fjDwyXHq5M5-nkw/exec";
-    const ROSTER_SECRET = "k9F@3xQp7L_92aZ!rT";
+    const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE5n2iEQgyQXH8TBMLisybFs6M56AXT-hXneK76HQGrPkhySCe1H4d48cKptfvpSqp/exec";
+    const ENROLLMENT_URL = "https://script.google.com/macros/s/AKfycbyE5n2iEQgyQXH8TBMLisybFs6M56AXT-hXneK76HQGrPkhySCe1H4d48cKptfvpSqp/exec";
+    const ENROLLMENT_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
     // INDEXEDDB HELPER
@@ -749,8 +749,8 @@
             if (!db.objectStoreNames.contains('drafts')) {
               db.createObjectStore('drafts', { keyPath: 'id' });
             }
-            if (!db.objectStoreNames.contains('roster')) {
-              db.createObjectStore('roster', { keyPath: 'id' });
+            if (!db.objectStoreNames.contains('enrollment')) {
+              db.createObjectStore('enrollment', { keyPath: 'id' });
             }
           };
         });
@@ -792,19 +792,19 @@
         });
       }
 
-      async saveRoster(payload) {
-        const tx = this.db.transaction('roster', 'readwrite');
-        tx.objectStore('roster').put({ id: 'current', data: payload, savedAt: Date.now() });
+      async saveEnrollment(payload) {
+        const tx = this.db.transaction('enrollment', 'readwrite');
+        tx.objectStore('enrollment').put({ id: 'current', data: payload, savedAt: Date.now() });
         return new Promise((resolve, reject) => {
           tx.oncomplete = resolve;
           tx.onerror = () => reject(tx.error);
         });
       }
 
-      async getRoster() {
-        const tx = this.db.transaction('roster', 'readonly');
+      async getEnrollment() {
+        const tx = this.db.transaction('enrollment', 'readonly');
         return new Promise((resolve, reject) => {
-          const req = tx.objectStore('roster').get('current');
+          const req = tx.objectStore('enrollment').get('current');
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
         });
@@ -821,7 +821,7 @@
 
     const marks = new Map();
     let students = [];
-    let rosterMeta = {};
+    let enrollmentMeta = {};
 
     // =====================
     // DOM REFS
@@ -841,7 +841,7 @@
     const status = document.getElementById('status');
     const statusBadge = document.getElementById('statusBadge');
 
-    const syncRosterBtn = document.getElementById('syncRosterBtn');
+    const syncEnrollmentBtn = document.getElementById('syncEnrollmentBtn');
 
     const loginBackdrop = document.getElementById('loginBackdrop');
     const loginEmail = document.getElementById('loginEmail');
@@ -862,13 +862,8 @@
     // CR AUTHENTICATION
     // =====================
     async function authenticateCR(email) {
-      // Use listCRs (confirmed working on live deployment) and filter by email
-      const params = new URLSearchParams({
-        action: 'listCRs',
-        secret: ROSTER_SECRET
-      });
-
-      const url = `${ROSTER_URL}?${params.toString()}`;
+      // ✅ Use the direct ?crEmail=... route provided by the new backend
+      const url = `${ENROLLMENT_URL}?crEmail=${encodeURIComponent(email)}`;
 
       let text;
       try {
@@ -879,23 +874,19 @@
       }
 
       let data;
-      if (text.trim().startsWith('{')) {
+      try {
         data = JSON.parse(text);
-      } else if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        console.warn('GAS returned HTML instead of JSON.');
-        throw new Error('Google Apps Script returned HTML. Ensure the script is deployed as "Web App" and "Who has access" is set to "Anyone".');
-      } else {
-        throw new Error('Unexpected response format from server.');
+      } catch (e) {
+        console.warn('GAS returned non-JSON:', text);
+        throw new Error('Server returned invalid response. Ensure the script is deployed correctly as a Web App.');
       }
 
-      if (!data.ok) throw new Error(data.error || 'Failed to fetch CR list');
+      if (!data.ok) {
+        throw new Error(data.error || 'Authentication failed');
+      }
 
-      const crs = data.crs || [];
-      const match = crs.find(cr => cr.email.toLowerCase() === email.toLowerCase());
-
-      if (!match) throw new Error('No CR assignment found for this email. Ask your admin to assign you first.');
-
-      return match;
+      // data contains: ok, email, courseId, section
+      return data;
     }
 
 
@@ -1018,6 +1009,42 @@
       }
     }
 
+    async function setLockState(isLocked) {
+      locked = isLocked;
+      statusBadge.textContent = locked ? '🔒 Locked' : '✏️ Edit Mode';
+
+      const controls = [isOnlineChk, notes, search, allP, allA, reset, submitBtn, typeSelect, startTime, endTime];
+      controls.forEach(el => {
+        if (el) el.disabled = locked;
+      });
+
+      if (locked) {
+        submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
+      } else {
+        submitBtn.innerHTML = '<span>✓</span><div>Submit & Lock</div>';
+      }
+
+      await saveDraftLocal();
+    }
+
+    async function checkDateLock() {
+      const selectedDate = document.getElementById('dateInput').value;
+      try {
+        const subs = await db.getSubmissions();
+        const existing = subs.find(s => s.payload.date === selectedDate);
+
+        if (existing) {
+          await setLockState(true);
+          status.textContent = `🔒 Attendance already submitted for ${selectedDate}.`;
+        } else {
+          await setLockState(false);
+          status.textContent = `✏️ Ready to mark attendance for ${selectedDate}.`;
+        }
+      } catch (e) {
+        console.warn('Check date lock failed:', e);
+      }
+    }
+
     async function restoreDraftLocal() {
       try {
         const draft = await db.getDraft();
@@ -1045,10 +1072,10 @@
     function buildAttendanceJson() {
       return {
         type: 'attendance',
-        course: rosterMeta.courseName || document.getElementById('course').textContent,
-        courseId: rosterMeta.courseId || currentUser.courseId,
-        courseValue: rosterMeta.courseId || currentUser.courseId,
-        section: rosterMeta.section || currentUser.section,
+        course: enrollmentMeta.courseName || document.getElementById('course').textContent,
+        courseId: enrollmentMeta.courseId || currentUser.courseId,
+        courseValue: enrollmentMeta.courseId || currentUser.courseId,
+        section: enrollmentMeta.section || currentUser.section,
         date: document.getElementById('dateInput').value,
         startTime: document.getElementById('startTime').value,
         endTime: document.getElementById('endTime').value,
@@ -1067,35 +1094,36 @@
     }
 
     // =====================
-    // ROSTER
+    // ENROLLMENT
     // =====================
 
     /**
-     * Fetches the latest roster from the server for this CR's courseId + section.
-     * Sends action=getLatestRoster so the Apps Script can find the newest
-     * Drive file matching: roster_course_{courseId}_section_{section}_{YYYY-MM-DD}
+     * Fetches the latest enrollment from the server for this CR's courseId + section.
+     * Sends action=getLatestEnrollment so the Apps Script can find the newest
+     * Drive file matching: enrollment_course_{courseId}_section_{section}_{YYYY-MM-DD}
      */
-    async function fetchRosterFromServer() {
-      if (!ROSTER_URL) {
-        throw new Error('ROSTER_URL not configured');
+    async function fetchEnrollmentFromServer() {
+      if (!ENROLLMENT_URL) {
+        throw new Error('ENROLLMENT_URL not configured');
       }
 
       const params = new URLSearchParams({
-        action: 'getLatestRoster',
-        secret: ROSTER_SECRET,
+        action: 'getLatestEnrollment',
+        secret: ENROLLMENT_SECRET,
         crEmail: currentUser.email,
         courseId: currentUser.courseId,
         section: currentUser.section
       });
 
-      const res = await fetch(`${ROSTER_URL}?${params.toString()}`);
+      const res = await fetch(`${ENROLLMENT_URL}?${params.toString()}`, { redirect: 'follow' });
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
 
       const text = await res.text();
       if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        throw new Error('Server returned HTML. Check GAS deployment permissions.');
+        console.error('Expected JSON, but got HTML:', text.substring(0, 500));
+        throw new Error('Server returned HTML instead of JSON. This usually means the Apps Script deployment permissions are incorrect (must be "Anyone") or the script encountered a fatal error.');
       }
 
       const data = JSON.parse(text);
@@ -1105,10 +1133,10 @@
       return data;
     }
 
-    function applyRoster(payload) {
-      const roster = payload.roster || [];
+    function applyEnrollment(payload) {
+      const enrollment = payload.enrollment || [];
 
-      rosterMeta = {
+      enrollmentMeta = {
         courseId: payload.courseId || currentUser.courseId,
         courseName: payload.courseName || `Course ${payload.courseId || currentUser.courseId}`,
         section: payload.section || currentUser.section,
@@ -1116,11 +1144,11 @@
         fileDate: payload.fileDate || null
       };
 
-      document.getElementById('course').textContent = rosterMeta.courseName;
-      document.getElementById('sectionDisplay').textContent = rosterMeta.section;
-      document.getElementById('crInfo').textContent = `${currentUser.email} • Section ${rosterMeta.section}`;
+      document.getElementById('course').textContent = enrollmentMeta.courseName;
+      document.getElementById('sectionDisplay').textContent = enrollmentMeta.section;
+      document.getElementById('crInfo').textContent = `${currentUser.email} • Section ${enrollmentMeta.section}`;
 
-      students = roster.map((item) => ({
+      students = enrollment.map((item) => ({
         regNo: item.regNo,
         displayReg: item.regNo,
         name: item.name || 'Unknown'
@@ -1130,53 +1158,53 @@
       students.forEach(s => marks.set(s.regNo, 'P'));
 
       render();
-      const fileInfo = rosterMeta.fileDate ? ` • ${rosterMeta.fileDate}` : '';
-      status.textContent = `📁 Roster loaded (${students.length} students)${fileInfo}.`;
+      const fileInfo = enrollmentMeta.fileDate ? ` • ${enrollmentMeta.fileDate}` : '';
+      status.textContent = `📁 Enrollment loaded (${students.length} students)${fileInfo}.`;
     }
 
-    async function initRoster() {
+    async function initEnrollment() {
       try {
-        const saved = await db.getRoster();
+        const saved = await db.getEnrollment();
         if (saved && saved.data) {
-          applyRoster(saved.data);
+          applyEnrollment(saved.data);
           const cachedFile = saved.data.fileDate ? ` [${saved.data.fileDate}]` : '';
-          status.textContent = `📁 Loaded roster from offline cache (${students.length} students)${cachedFile}.`;
+          status.textContent = `📁 Loaded enrollment from offline cache (${students.length} students)${cachedFile}.`;
         }
 
         if (isOnline) {
-          status.textContent = '⏳ Syncing latest roster from server...';
-          const fresh = await fetchRosterFromServer();
-          await db.saveRoster(fresh);
-          applyRoster(fresh);
+          status.textContent = '⏳ Syncing latest enrollment from server...';
+          const fresh = await fetchEnrollmentFromServer();
+          await db.saveEnrollment(fresh);
+          applyEnrollment(fresh);
           const fileInfo = fresh.fileDate ? ` [${fresh.fileDate}]` : '';
-          status.textContent = `✅ Roster synced from server (${students.length} students)${fileInfo}.`;
+          status.textContent = `✅ Enrollment synced from server (${students.length} students)${fileInfo}.`;
         } else if (!saved) {
-          status.textContent = '🟡 Offline and no roster cached yet. Connect once to fetch roster.';
+          status.textContent = '🟡 Offline and no enrollment cached yet. Connect once to fetch enrollment.';
         }
       } catch (e) {
-        console.error('Roster init failed:', e);
+        console.error('Enrollment init failed:', e);
         if (!students.length) {
-          status.textContent = '❌ Failed to load roster: ' + e.message;
+          status.textContent = '❌ Failed to load enrollment: ' + e.message;
         }
       }
     }
 
-    async function syncRoster() {
+    async function syncEnrollment() {
       if (!isOnline) {
-        status.textContent = '🟡 Cannot sync roster while offline.';
+        status.textContent = '🟡 Cannot sync enrollment while offline.';
         return;
       }
 
-      status.textContent = '⏳ Syncing latest roster...';
+      status.textContent = '⏳ Syncing latest enrollment...';
       try {
-        const fresh = await fetchRosterFromServer();
-        await db.saveRoster(fresh);
-        applyRoster(fresh);
-        const fileInfo = rosterMeta.fileDate ? ` • ${rosterMeta.fileDate}` : '';
-        status.textContent = `✅ Roster updated (${students.length} students)${fileInfo}.`;
+        const fresh = await fetchEnrollmentFromServer();
+        await db.saveEnrollment(fresh);
+        applyEnrollment(fresh);
+        const fileInfo = enrollmentMeta.fileDate ? ` • ${enrollmentMeta.fileDate}` : '';
+        status.textContent = `✅ Enrollment updated (${students.length} students)${fileInfo}.`;
       } catch (e) {
         console.error('Sync failed:', e);
-        status.textContent = '❌ Roster sync failed: ' + e.message;
+        status.textContent = '❌ Enrollment sync failed: ' + e.message;
       }
     }
 
@@ -1204,7 +1232,7 @@
 
         loginBackdrop.style.display = 'none';
 
-        await initRoster();
+        await initEnrollment();
         await restoreDraftLocal();
         render();
       } catch (e) {
@@ -1229,10 +1257,14 @@
     search.addEventListener('input', render);
 
     ['change', 'input'].forEach(ev => {
-      ['dateInput', 'startTime', 'endTime', 'typeSelect'].forEach(id => {
+      ['startTime', 'endTime', 'typeSelect'].forEach(id => {
         document.getElementById(id).addEventListener(ev, async () => !locked && await saveDraftLocal());
       });
       isOnlineChk.addEventListener(ev, async () => !locked && await saveDraftLocal());
+    });
+
+    document.getElementById('dateInput').addEventListener('change', async () => {
+      await checkDateLock();
     });
 
     document.getElementById('emailAttendanceBtn').addEventListener('click', () => {
@@ -1264,9 +1296,10 @@
       sendEmail.disabled = true;
 
       try {
-        const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ROSTER_SECRET)}`, {
+        const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
           method: 'POST',
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          redirect: 'follow'
         });
 
         // GAS POST returns opaque or JSON — treat any completion as success
@@ -1354,9 +1387,10 @@
 
         for (const sub of pending) {
           try {
-            const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ROSTER_SECRET)}`, {
+            const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
               method: 'POST',
-              body: JSON.stringify(sub.payload)
+              body: JSON.stringify(sub.payload),
+              redirect: 'follow'
             });
 
             const text = await res.text();
@@ -1390,13 +1424,9 @@
       const payload = buildAttendanceJson();
       console.log('SUBMIT:', payload);
 
-      locked = true;
-      statusBadge.textContent = '🔒 Locked';
-      await saveDraftLocal();
+      await setLockState(true);
 
       submitBackdrop.style.display = 'none';
-
-      [isOnlineChk, notes, search, allP, allA, reset, submitBtn].forEach(el => el.disabled = true);
 
       status.textContent = isOnline ? '✅ Submission initiated...' : '🟡 Saved offline, will submit when online.';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
@@ -1422,7 +1452,7 @@
     });
 
     userBtn.addEventListener('click', () => {
-      const msg = `Profile: ${currentUser.email}\nCourse: ${rosterMeta.courseId}\nSection: ${rosterMeta.section}\nStatus: ${isOnline ? '🟢 Online' : '🟡 Offline'}\n\nClick OK to logout`;
+      const msg = `Profile: ${currentUser.email}\nCourse: ${enrollmentMeta.courseId}\nSection: ${enrollmentMeta.section}\nStatus: ${isOnline ? '🟢 Online' : '🟡 Offline'}\n\nClick OK to logout`;
       if (confirm(msg)) {
         logoutCR();
       }
@@ -1430,8 +1460,8 @@
 
 
 
-    syncRosterBtn.addEventListener('click', () => {
-      syncRoster();
+    syncEnrollmentBtn.addEventListener('click', () => {
+      syncEnrollment();
     });
 
     // =====================
@@ -1477,7 +1507,7 @@
         // Check if CR is already logged in
         if (loadCRFromStorage()) {
           loginBackdrop.style.display = 'none';
-          await initRoster();
+          await initEnrollment();
           await restoreDraftLocal();
           render();
           await updatePendingBadge();

@@ -9,51 +9,58 @@ const DRIVE_FOLDER_ID = "1XY9Lo69RwEsWwmYPIXTpxWSvWlH3cFVT";
 // ROUTING
 // =====================
 function doGet(e) {
-  const hasParams = e && e.parameter && Object.keys(e.parameter).length > 0;
+  try {
+    const hasParams = e && e.parameter && Object.keys(e.parameter).length > 0;
 
-  // No params → serve admin panel with injected scriptUrl
-  if (!hasParams) {
-    const template = HtmlService.createTemplateFromFile('admin-panel');
-    template.scriptUrl = ScriptApp.getService().getUrl();
-    return template.evaluate()
-      .setTitle('Admin Panel – Attendance System')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  }
-
-  const action  = e.parameter.action;
-  const secret  = e.parameter.secret;
-  const crEmail = e.parameter.crEmail;
-
-  // ✅ Route 1: CR login — called by PWA via ?crEmail=...
-  if (crEmail && !action) {
-    return getCRAssignmentResponse(crEmail);
-  }
-
-  // Route 2: Action-based API calls (require secret + action)
-  if (action) {
-    if (secret !== SECRET) {
-      return jsonResponse({ ok: false, error: 'unauthorized' });
+    // No params → serve admin panel
+    if (!hasParams) {
+      const template = HtmlService.createTemplateFromFile('admin-panel');
+      template.scriptUrl = ScriptApp.getService().getUrl();
+      return template.evaluate()
+        .setTitle('Admin Panel – Attendance System')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     }
 
-    if (action === 'debugFolder')       return debugFolder();
-    if (action === 'listRosters')       return listRosters();
-    if (action === 'getCRAssignment')   return getCRAssignmentResponse(e.parameter.email);
-    if (action === 'assignCR')          return assignCR(e.parameter.email, e.parameter.courseId, e.parameter.section);
-    if (action === 'listCRs')           return listCRs();
-    if (action === 'getLatestRoster')   return getLatestRoster(e.parameter.courseId, e.parameter.section, e.parameter.crEmail);
-    if (action === 'listAttendance')    return listAttendance();
-    if (action === 'unlockAttendance')  return unlockAttendance(e.parameter.courseId, e.parameter.section, e.parameter.date);
-    if (action === 'addStudent')        return addStudent(e.parameter.courseId, e.parameter.section, e.parameter.regNo, e.parameter.name);
+    const action  = e.parameter.action;
+    const secret  = e.parameter.secret;
+    const crEmail = e.parameter.crEmail;
 
-    return jsonResponse({ ok: false, error: 'unknown_action: ' + action });
+    // ✅ Route 1: CR login — called by PWA via ?crEmail=...
+    if (crEmail && !action) {
+      return getCRAssignmentResponse(crEmail);
+    }
+
+    // Route 2: Action-based API calls (require secret + action)
+    if (action) {
+      if (secret !== SECRET) {
+        return jsonResponse({ ok: false, error: 'unauthorized' });
+      }
+
+      if (action === 'debugFolder')      return debugFolder();
+      if (action === 'listEnrollments')   return listEnrollments();
+      if (action === 'getCRAssignment')  return getCRAssignmentResponse(e.parameter.email);
+      if (action === 'assignCR')         return assignCR(e.parameter.email, e.parameter.courseId, e.parameter.section);
+      if (action === 'listCRs')          return listCRs();
+      if (action === 'getLatestEnrollment') return getLatestEnrollment(e.parameter.courseId, e.parameter.section, e.parameter.crEmail);
+      if (action === 'deleteEnrollment')    return deleteEnrollment(e.parameter.fileId);
+      if (action === 'listAttendance')   return listAttendance();
+      if (action === 'unlockAttendance') return unlockAttendance(e.parameter.courseId, e.parameter.section, e.parameter.date);
+      if (action === 'addStudent')       return addStudent(e.parameter.courseId, e.parameter.section, e.parameter.regNo, e.parameter.name);
+
+      return jsonResponse({ ok: false, error: 'unknown_action: ' + action });
+    }
+
+    return jsonResponse({ ok: false, error: 'invalid_request' });
+
+  } catch (err) {
+    Logger.log('doGet Error: ' + err.toString());
+    return jsonResponse({ ok: false, error: 'Script Error: ' + err.toString() });
   }
-
-  return jsonResponse({ ok: false, error: 'invalid_request' });
 }
 
 
 // =====================
-// POST — Upload roster OR submit attendance
+// POST — Upload enrollment OR submit attendance
 // =====================
 function doPost(e) {
   try {
@@ -67,9 +74,9 @@ function doPost(e) {
     try { payload = JSON.parse(raw); }
     catch (parseErr) { return jsonResponse({ ok: false, error: "invalid_json", message: parseErr.message }); }
 
-    // ---- ROSTER UPLOAD ----
-    if (payload.type === "roster") {
-      return handleRosterUpload_(payload);
+    // ---- ENROLLMENT UPLOAD ----
+    if (payload.type === "enrollment") {
+      return handleEnrollmentUpload_(payload);
     }
 
     // ---- ATTENDANCE SUBMISSION ----
@@ -77,7 +84,7 @@ function doPost(e) {
       return handleAttendanceSubmission_(payload);
     }
 
-    return jsonResponse({ ok: false, error: "invalid_type: must be 'roster' or 'attendance'" });
+    return jsonResponse({ ok: false, error: "invalid_type: must be 'enrollment' or 'attendance'" });
 
   } catch (err) {
     return jsonResponse({ ok: false, error: err.message, stack: err.stack });
@@ -89,26 +96,26 @@ function doPost(e) {
 // POST HANDLERS
 // =====================
 
-function handleRosterUpload_(payload) {
-  if (!payload.courseId || !payload.roster || !Array.isArray(payload.roster))
+function handleEnrollmentUpload_(payload) {
+  if (!payload.courseId || !payload.enrollment || !Array.isArray(payload.enrollment))
     return jsonResponse({ ok: false, error: "missing_fields" });
 
   const folder   = DriveApp.getFolderById(DRIVE_FOLDER_ID);
   const datePart = (payload.extractedAt || new Date().toISOString()).slice(0, 10);
   const section  = payload.section || "NA";
-  const filename = `roster_course_${payload.courseId}_section_${section}_${datePart}.json`;
+  const filename = `enrollment_course_${payload.courseId}_section_${section}_${datePart}.json`;
 
   const file = upsertJsonFile_(folder, filename, JSON.stringify(payload, null, 2));
 
   PropertiesService.getScriptProperties()
-    .setProperty(`latest_${payload.courseId}_${section}`, file.getId());
+    .setProperty(`latest_enrollment_${payload.courseId}_${section}`, file.getId());
 
   return jsonResponse({
     ok:            true,
     fileId:        file.getId(),
     filename:      filename,
     fileUrl:       file.getUrl(),
-    studentsCount: payload.totalStudents || payload.roster.length
+    studentsCount: payload.totalStudents || payload.enrollment.length
   });
 }
 
@@ -282,6 +289,20 @@ function buildAttendanceEmailHtml_(payload) {
 
 
 // =====================
+// DELETE ENROLLMENT
+// =====================
+function deleteEnrollment(fileId) {
+  try {
+    if (!fileId) throw new Error('File ID missing');
+    const file = DriveApp.getFileById(fileId);
+    file.setTrashed(true);
+    return jsonResponse({ ok: true, message: 'File trashed: ' + file.getName() });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: 'Delete failed: ' + err.toString() });
+  }
+}
+
+// =====================
 // UNLOCK ATTENDANCE
 // =====================
 function unlockAttendance(courseId, section, date) {
@@ -317,7 +338,7 @@ function unlockAttendance(courseId, section, date) {
 
 
 // =====================
-// ADD STUDENT TO ROSTER
+// ADD STUDENT TO ENROLLMENT
 // =====================
 function addStudent(courseId, section, regNo, name) {
   try {
@@ -325,31 +346,31 @@ function addStudent(courseId, section, regNo, name) {
       return jsonResponse({ ok: false, error: 'courseId, regNo, and name are required' });
 
     section = section || 'NA';
-    const best = findLatestRosterFile_(courseId, section);
+    const best = findLatestEnrollmentFile_(courseId, section);
 
     if (!best) {
-      return jsonResponse({ ok: false, error: `No roster found for course ${courseId} section ${section}` });
+      return jsonResponse({ ok: false, error: `No enrollment found for course ${courseId} section ${section}` });
     }
 
     const content = JSON.parse(best.file.getBlob().getDataAsString());
-    const roster  = content.roster || [];
+    const enrollment = content.enrollment || [];
 
     // Check for duplicate
-    const exists = roster.some(s =>
+    const exists = enrollment.some(s =>
       (s.regNo || s.reg || '').toUpperCase() === regNo.toUpperCase()
     );
     if (exists) {
-      return jsonResponse({ ok: false, error: `Student ${regNo} already exists in roster` });
+      return jsonResponse({ ok: false, error: `Student ${regNo} already exists in enrollment` });
     }
 
-    roster.push({
-      sr:    roster.length + 1,
+    enrollment.push({
+      sr:    enrollment.length + 1,
       regNo: regNo.toUpperCase(),
       name:  name.toUpperCase()
     });
 
-    content.roster        = roster;
-    content.totalStudents = roster.length;
+    content.enrollment    = enrollment;
+    content.totalStudents = enrollment.length;
     content.lastModified  = new Date().toISOString();
 
     best.file.setContent(JSON.stringify(content, null, 2));
@@ -358,7 +379,7 @@ function addStudent(courseId, section, regNo, name) {
       ok:            true,
       filename:      best.name,
       addedStudent:  { regNo: regNo.toUpperCase(), name: name.toUpperCase() },
-      totalStudents: roster.length
+      totalStudents: enrollment.length
     });
 
   } catch (err) {
@@ -423,6 +444,10 @@ function listAttendance() {
 // =====================
 // CR MANAGEMENT
 // =====================
+/**
+ * ✅ Returns proper JSON response for CR login
+ * Called by PWA via ?crEmail=... or Admin Panel via ?action=getCRAssignment&email=...
+ */
 function getCRAssignmentResponse(email) {
   try {
     const prop = PropertiesService.getScriptProperties().getProperty(`cr_${email}`);
@@ -446,15 +471,17 @@ function getCRAssignmentResponse(email) {
 
   } catch (err) {
     Logger.log('getCRAssignmentResponse error:', err);
-    return jsonResponse({ ok: false, error: err.message });
+    return jsonResponse({ 
+      ok: false, 
+      error: err.message 
+    });
   }
 }
 
 
 function assignCR(email, courseId, section) {
   try {
-    if (!email || !courseId || !section)
-      return jsonResponse({ ok: false, error: "missing_parameters" });
+    if (!email || !courseId || !section) return jsonResponse({ ok: false, error: "missing_parameters" });
 
     const assignment = { email, courseId, section, assignedAt: new Date().toISOString() };
     PropertiesService.getScriptProperties().setProperty(`cr_${email}`, JSON.stringify(assignment));
@@ -483,11 +510,11 @@ function listCRs() {
 
 
 // =====================
-// ROSTER FUNCTIONS
+// ENROLLMENT FUNCTIONS
 // =====================
-function findLatestRosterFile_(courseId, section) {
+function findLatestEnrollmentFile_(courseId, section) {
   const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
-  const prefix = `roster_course_${courseId}_section_${section}_`;
+  const prefix = `enrollment_course_${courseId}_section_${section}_`;
   const it     = folder.getFiles();
   let   best   = null;
 
@@ -504,14 +531,14 @@ function findLatestRosterFile_(courseId, section) {
 
   if (best) {
     PropertiesService.getScriptProperties()
-      .setProperty(`latest_${courseId}_${section}`, best.file.getId());
+      .setProperty(`latest_enrollment_${courseId}_${section}`, best.file.getId());
   }
 
   return best;
 }
 
 
-function listRosters() {
+function listEnrollments() {
   try {
     const folder    = DriveApp.getFolderById(DRIVE_FOLDER_ID);
     const files     = folder.getFiles();
@@ -521,7 +548,7 @@ function listRosters() {
       const file     = files.next();
       const filename = file.getName();
 
-      if (!filename.startsWith('roster_course_') || !filename.toLowerCase().endsWith('.json')) continue;
+      if (!filename.startsWith('enrollment_course_') || !filename.toLowerCase().endsWith('.json')) continue;
 
       try {
         const content     = JSON.parse(file.getBlob().getDataAsString());
@@ -530,11 +557,11 @@ function listRosters() {
         const extractedAt = content.extractedAt || file.getDateCreated().toISOString();
         const key         = `${courseId}_${section}`;
 
-        const rosterInfo = {
+        const enrollmentInfo = {
           filename,
           courseId,
           section,
-          totalStudents: content.totalStudents || (content.roster ? content.roster.length : 0),
+          totalStudents: content.totalStudents || (content.enrollment ? content.enrollment.length : 0),
           date:          extractedAt.split('T')[0],
           extractedAt,
           fileUrl:       file.getUrl(),
@@ -543,15 +570,15 @@ function listRosters() {
         };
 
         if (!latestMap.has(key) || new Date(extractedAt) > new Date(latestMap.get(key).extractedAt)) {
-          latestMap.set(key, rosterInfo);
+          latestMap.set(key, enrollmentInfo);
         }
       } catch (parseError) {
         Logger.log('Error parsing: ' + filename + ' | ' + parseError);
       }
     }
 
-    const latestRosters = Array.from(latestMap.values());
-    return jsonResponse({ ok: true, rosters: latestRosters, count: latestRosters.length });
+    const latestEnrollments = Array.from(latestMap.values());
+    return jsonResponse({ ok: true, enrollments: latestEnrollments, count: latestEnrollments.length });
 
   } catch (error) {
     return jsonResponse({ ok: false, error: error.toString() });
@@ -559,7 +586,7 @@ function listRosters() {
 }
 
 
-function getLatestRoster(courseId, section, crEmail) {
+function getLatestEnrollment(courseId, section, crEmail) {
   try {
     if (!courseId || !section) {
       if (!crEmail) return jsonResponse({ ok: false, error: 'courseId+section or crEmail required' });
@@ -569,32 +596,32 @@ function getLatestRoster(courseId, section, crEmail) {
       section  = assignData.section;
     }
 
-    const best = findLatestRosterFile_(courseId, section);
+    const best = findLatestEnrollmentFile_(courseId, section);
 
     if (!best) {
-      return jsonResponse({ ok: false, error: `No roster found for course ${courseId} section ${section}` });
+      return jsonResponse({ ok: false, error: `No enrollment found for course ${courseId} section ${section}` });
     }
 
     let payload;
     try { payload = JSON.parse(best.file.getBlob().getDataAsString()); }
     catch (e) { return jsonResponse({ ok: false, error: 'Failed to parse file: ' + e.message }); }
 
-    const roster = (payload.roster || []).map(item => ({
+    const enrollment = (payload.enrollment || []).map(item => ({
       regNo: String(item.regNo || item.reg || ''),
       name:  String(item.name  || item.studentName || 'Unknown')
     }));
 
-    Logger.log(`getLatestRoster → ${best.name} (${roster.length} students)`);
+    Logger.log(`getLatestEnrollment → ${best.name} (${enrollment.length} students)`);
 
     return jsonResponse({
       ok:            true,
       courseId:      String(courseId),
       courseName:    payload.courseName || `Course ${courseId}`,
       section:       String(section),
-      roster,
+      enrollment,
       fileName:      best.name,
       fileDate:      best.dateStr,
-      totalStudents: roster.length
+      totalStudents: enrollment.length
     });
 
   } catch (err) {
