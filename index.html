@@ -738,7 +738,7 @@
 
       async init() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open(this.dbName, 3);
+          const req = indexedDB.open(this.dbName, 3); // FIXED: bumped version to create enrollment store
           req.onerror = () => reject(req.error);
           req.onsuccess = () => { this.db = req.result; resolve(); };
           req.onupgradeneeded = (e) => {
