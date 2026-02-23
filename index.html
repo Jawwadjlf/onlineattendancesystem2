@@ -1138,7 +1138,9 @@
 
       enrollmentMeta = {
         courseId: payload.courseId || currentUser.courseId,
-        courseName: payload.courseName || `Course ${payload.courseId || currentUser.courseId}`,
+        courseName: (payload.courseName && payload.courseName !== 'UNKNOWN')
+              ? payload.courseName
+              : `Course ${payload.courseId || currentUser.courseId}`,
         section: payload.section || currentUser.section,
         fileName: payload.fileName || null,
         fileDate: payload.fileDate || null
