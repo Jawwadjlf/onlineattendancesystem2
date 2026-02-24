@@ -11,7 +11,6 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
 
-
   <style>
     :root {
       --cui-primary: #363763;
@@ -27,9 +26,7 @@
       --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -71,22 +68,9 @@
       gap: 10px;
     }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .brand .h {
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: .2px;
-    }
-
-    .brand .s {
-      opacity: .85;
-      font-size: 12px;
-    }
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+    .brand .h { font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+    .brand .s { opacity: .85; font-size: 12px; }
 
     .pill {
       display: inline-flex;
@@ -110,10 +94,7 @@
       cursor: pointer;
       transition: all .2s;
     }
-
-    .mini-btn:hover {
-      background: rgba(255, 255, 255, .18);
-    }
+    .mini-btn:hover { background: rgba(255, 255, 255, .18); }
 
     .content {
       padding: 12px;
@@ -138,11 +119,7 @@
       justify-content: space-between;
       gap: 10px;
     }
-
-    .summary .h {
-      font-weight: 800;
-    }
-
+    .summary .h { font-weight: 800; }
     .summary .pill2 {
       border: 1px solid var(--cui-line);
       background: #f8fafc;
@@ -153,27 +130,10 @@
       white-space: nowrap;
     }
 
-    .meta {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
-      font-size: 13px;
-    }
-
-    .kv {
-      display: flex;
-      gap: 10px;
-      align-items: baseline;
-    }
-
-    .k {
-      width: 70px;
-      color: var(--cui-muted);
-    }
-
-    .v {
-      font-weight: 700;
-    }
+    .meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 13px; }
+    .kv { display: flex; gap: 10px; align-items: baseline; }
+    .k { width: 70px; color: var(--cui-muted); }
+    .v { font-weight: 700; }
 
     input[type="date"],
     input[type="time"],
@@ -186,7 +146,6 @@
       outline: none;
       width: 100%;
     }
-
     input[type="date"]:focus,
     input[type="time"]:focus,
     input[type="email"]:focus,
@@ -195,19 +154,8 @@
       box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
     }
 
-    .checkrow {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-
-    .checkrow input {
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-    }
+    .checkrow { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; margin-bottom: 10px; }
+    .checkrow input { width: 18px; height: 18px; margin-top: 2px; }
 
     textarea {
       width: 100%;
@@ -219,17 +167,12 @@
       min-height: 76px;
       outline: none;
     }
-
     textarea:focus {
       border-color: var(--cui-primary);
       box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
     }
 
-    .count {
-      font-size: 12px;
-      color: var(--cui-muted);
-      margin-top: 6px;
-    }
+    .count { font-size: 12px; color: var(--cui-muted); margin-top: 6px; }
 
     .search {
       width: 100%;
@@ -239,18 +182,12 @@
       font-size: 13px;
       outline: none;
     }
-
     .search:focus {
       border-color: var(--cui-primary);
       box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
     }
 
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 
     .btn {
       border: 1px solid var(--cui-line);
@@ -262,38 +199,25 @@
       cursor: pointer;
       transition: all .2s;
     }
-
-    .btn:hover {
-      background: #eef2f7;
-    }
-
+    .btn:hover { background: #eef2f7; }
     .btn.primary {
       border-color: rgba(54, 55, 99, .25);
       background: rgba(54, 55, 99, .10);
       color: var(--cui-primary);
     }
-
     .btn.danger {
       border-color: rgba(189, 56, 80, .25);
       background: rgba(189, 56, 80, .08);
       color: var(--cui-danger);
     }
-
     .btn.success {
       border-color: rgba(34, 194, 95, .25);
       background: rgba(34, 194, 95, .08);
       color: var(--cui-success);
     }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .list {
-      margin-top: 10px;
-      border-top: 1px solid var(--cui-line);
-    }
+    .list { margin-top: 10px; border-top: 1px solid var(--cui-line); }
 
     .stu {
       display: grid;
@@ -304,37 +228,11 @@
       align-items: center;
     }
 
-    .sr {
-      text-align: center;
-      color: var(--cui-muted);
-      font-size: 12px;
-    }
-
-    .who {
-      min-width: 0;
-    }
-
-    .reg {
-      color: var(--cui-muted);
-      font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .name {
-      font-weight: 700;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .pa {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
+    .sr { text-align: center; color: var(--cui-muted); font-size: 12px; }
+    .who { min-width: 0; }
+    .reg { color: var(--cui-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pa { display: flex; gap: 8px; justify-content: flex-end; }
 
     .radio {
       width: 38px;
@@ -350,17 +248,12 @@
       background: #fff;
       transition: all .2s;
     }
-
-    .radio:hover {
-      border-color: var(--cui-primary);
-    }
-
+    .radio:hover { border-color: var(--cui-primary); }
     .radio.onP {
       border-color: rgba(34, 194, 107, .40);
       background: rgba(34, 194, 107, .15);
       color: var(--cui-success);
     }
-
     .radio.onA {
       border-color: rgba(189, 56, 80, .40);
       background: rgba(189, 56, 80, .15);
@@ -392,27 +285,11 @@
       letter-spacing: .2px;
       transition: all .2s;
     }
+    .submitIconBtn:hover { filter: brightness(1.05); }
+    .submitIconBtn:active { transform: translateY(1px); }
+    .submitIconBtn[disabled] { opacity: .55; cursor: not-allowed; filter: grayscale(.3); }
 
-    .submitIconBtn:hover {
-      filter: brightness(1.05);
-    }
-
-    .submitIconBtn:active {
-      transform: translateY(1px);
-    }
-
-    .submitIconBtn[disabled] {
-      opacity: .55;
-      cursor: not-allowed;
-      filter: grayscale(.3);
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--cui-muted);
-      line-height: 1.3;
-    }
+    .status { margin-top: 10px; font-size: 13px; color: var(--cui-muted); line-height: 1.3; }
 
     .backdrop {
       position: fixed;
@@ -435,27 +312,10 @@
       padding: 14px;
       margin: auto;
     }
-
-    .modal h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
-    }
-
-    .modal p {
-      margin: 0 0 10px;
-      color: var(--cui-muted);
-      font-size: 13px;
-    }
-
-    .modal ul {
-      margin: 0 0 12px;
-      padding-left: 18px;
-      font-size: 13px;
-    }
-
-    .modal li {
-      margin: 4px 0;
-    }
+    .modal h3 { margin: 0 0 6px; font-size: 16px; }
+    .modal p { margin: 0 0 10px; color: var(--cui-muted); font-size: 13px; }
+    .modal ul { margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
+    .modal li { margin: 4px 0; }
 
     .actions {
       display: flex;
@@ -472,37 +332,12 @@
       font-size: 11px;
       font-weight: 700;
     }
+    .badge.online  { background: rgba(34, 194, 107, .15); color: var(--cui-success); border: 1px solid rgba(34, 194, 107, .3); }
+    .badge.offline { background: rgba(255, 159, 64, .15); color: #ff9f40; border: 1px solid rgba(255, 159, 64, .3); }
+    .badge.locked  { background: rgba(189, 56, 80, .15); color: var(--cui-danger); border: 1px solid rgba(189, 56, 80, .3); }
+    .badge.approved { background: rgba(34, 194, 107, .15); color: var(--cui-success); border: 1px solid rgba(34, 194, 107, .3); }
 
-    .badge.online {
-      background: rgba(34, 194, 107, .15);
-      color: var(--cui-success);
-      border: 1px solid rgba(34, 194, 107, .3);
-    }
-
-    .badge.offline {
-      background: rgba(255, 159, 64, .15);
-      color: #ff9f40;
-      border: 1px solid rgba(255, 159, 64, .3);
-    }
-
-    .badge.locked {
-      background: rgba(189, 56, 80, .15);
-      color: var(--cui-danger);
-      border: 1px solid rgba(189, 56, 80, .3);
-    }
-
-    .badge.approved {
-      background: rgba(34, 194, 107, .15);
-      color: var(--cui-success);
-      border: 1px solid rgba(34, 194, 107, .3);
-    }
-
-    .tab-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
+    .tab-buttons { display: flex; gap: 10px; margin-bottom: 10px; }
     .tab-btn {
       flex: 1;
       padding: 8px;
@@ -514,55 +349,28 @@
       font-weight: 700;
       transition: all .2s;
     }
+    .tab-btn.active { background: var(--cui-primary); color: #fff; border-color: var(--cui-primary); }
 
-    .tab-btn.active {
-      background: var(--cui-primary);
-      color: #fff;
-      border-color: var(--cui-primary);
-    }
-
-    .qr-container {
-      text-align: center;
-      margin: 10px 0;
-    }
-
-    .qr-container canvas,
-    .qr-container img {
+    .qr-container { text-align: center; margin: 10px 0; }
+    .qr-container canvas, .qr-container img {
       max-width: 100%;
       border: 1px solid var(--cui-line);
       border-radius: 10px;
     }
 
     @media (max-width: 360px) {
-      .stu {
-        grid-template-columns: 30px 1fr 86px;
-      }
-
-      .radio {
-        width: 36px;
-      }
+      .stu { grid-template-columns: 30px 1fr 86px; }
+      .radio { width: 36px; }
     }
 
-    /* Animation */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .fade-in {
-      animation: fadeIn .3s ease-in;
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn .3s ease-in; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="phone" role="application" aria-label="Enhanced CR Attendance PWA">
+    <div class="phone" role="application" aria-label="CR Attendance PWA">
       <div class="topbar">
         <div class="row">
           <div class="brand">
@@ -579,37 +387,31 @@
       </div>
 
       <div class="content" id="mainContent">
-        <!-- ATTENDANCE FORM SECTION -->
+        <!-- ATTENDANCE FORM -->
         <div class="card">
           <div class="summary">
             <div class="h">Attendance Entry</div>
             <div class="pill2" id="statusBadge">✏️ Edit Mode</div>
           </div>
           <div class="meta" style="margin-top:10px;">
-            <div class="kv">
-              <div class="k">Course</div>
-              <div class="v" id="course">Loading...</div>
-            </div>
-            <div class="kv">
-              <div class="k">Section</div>
-              <div class="v" id="sectionDisplay">-</div>
-            </div>
-            <div class="kv">
-              <div class="k">Date</div>
-              <div class="v"><input type="date" id="dateInput" /></div>
-            </div>
+            <div class="kv"><div class="k">Course</div><div class="v" id="course">Loading...</div></div>
+            <div class="kv"><div class="k">Section</div><div class="v" id="sectionDisplay">-</div></div>
+            <div class="kv"><div class="k">Date</div><div class="v"><input type="date" id="dateInput" /></div></div>
             <div class="kv">
               <div class="k">Time</div>
-              <div class="v"><input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime"
-                  value="10:20" /></div>
+              <div class="v">
+                <input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime" value="10:20" />
+              </div>
             </div>
             <div class="kv">
               <div class="k">Type</div>
-              <div class="v"><select id="typeSelect">
+              <div class="v">
+                <select id="typeSelect">
                   <option value="1">Class</option>
                   <option value="2">Lab</option>
                   <option value="4">Exam</option>
-                </select></div>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -620,7 +422,7 @@
             <input type="checkbox" id="isOnline" />
             <label for="isOnline"><b>Online Class</b></label>
           </div>
-          <div style="color: var(--cui-danger); font-weight: 700; margin-bottom: 6px;">Lecture Notes / Content</div>
+          <div style="color:var(--cui-danger);font-weight:700;margin-bottom:6px;">Lecture Notes / Content</div>
           <textarea id="notes" placeholder="Type lecture notes here" maxlength="2999"></textarea>
           <div class="count"><span id="count">0</span>/2999</div>
         </div>
@@ -640,47 +442,53 @@
           </div>
           <div class="list" id="list"></div>
         </div>
-
-
       </div>
 
       <div class="footer">
-        <div class="controls" style="margin-bottom:10px; font-size:12px;">
+        <div class="controls" style="margin-bottom:10px;font-size:12px;">
           <button class="btn" id="emailAttendanceBtn" title="Email attendance to faculty">📧 Email Attendance</button>
-
         </div>
-
         <button id="submit" class="submitIconBtn">
           <span>✓</span>
-          <div>Submit & Lock</div>
+          <div>Submit &amp; Lock</div>
         </button>
-
         <div class="status" id="status">Ready to mark attendance. Click students to toggle Present/Absent.</div>
       </div>
     </div>
   </div>
 
-  <!-- CR LOGIN MODAL -->
+  <!-- ✅ CR LOGIN MODAL — Email + Password -->
   <div class="backdrop" id="loginBackdrop" style="display:flex;">
     <div class="modal" role="dialog" aria-modal="true">
-      <h3>👤 CR Login</h3>
-      <p>Enter your COMSATS email to access your section's attendance</p>
+      <h3>🔐 CR Login</h3>
+      <p>Enter your email and password assigned by admin</p>
+
       <div style="margin-bottom:12px;">
-        <label style="display:block; margin-bottom:6px; font-weight:700; font-size:13px;">CR Email</label>
+        <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px;">CR Email</label>
         <input type="email" id="loginEmail" placeholder="cr@comsats.edu.pk"
-          style="width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-size:13px;" />
+          style="width:100%;border:1px solid var(--cui-line);border-radius:10px;padding:10px;font-size:13px;" />
       </div>
+
+      <div style="margin-bottom:12px;position:relative;">
+        <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px;">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password"
+          style="width:100%;border:1px solid var(--cui-line);border-radius:10px;padding:10px;padding-right:42px;font-size:13px;" />
+        <span id="togglePwdBtn"
+          style="position:absolute;right:12px;bottom:11px;cursor:pointer;font-size:16px;user-select:none;"
+          title="Show/hide password">👁️</span>
+      </div>
+
       <div class="actions">
-        <button class="btn primary" id="loginBtn" style="width:100%;">✓ Login</button>
+        <button class="btn primary" id="loginBtn" style="width:100%;">🔐 Login</button>
       </div>
-      <div id="loginStatus" style="margin-top:10px; font-size:13px; color:var(--cui-muted);"></div>
+      <div id="loginStatus" style="margin-top:10px;font-size:13px;color:var(--cui-muted);"></div>
     </div>
   </div>
 
   <!-- SUBMIT CONFIRMATION MODAL -->
   <div class="backdrop" id="submitBackdrop">
     <div class="modal" role="dialog" aria-modal="true">
-      <h3>Confirm Submit & Lock</h3>
+      <h3>Confirm Submit &amp; Lock</h3>
       <p>Once submitted:</p>
       <ul>
         <li>Attendance will be <b>LOCKED</b></li>
@@ -699,11 +507,12 @@
     <div class="modal" role="dialog" aria-modal="true">
       <h3>📧 Email Attendance to Faculty</h3>
       <div style="margin:10px 0;">
-        <label style="display:block; margin-bottom:8px;"><b>Faculty Email:</b></label>
+        <label style="display:block;margin-bottom:8px;"><b>Faculty Email:</b></label>
         <input type="email" id="facultyEmail" placeholder="faculty@comsats.edu.pk"
-          style="width:100%; border:1px solid var(--cui-line); border-radius:8px; padding:8px; font-size:13px;">
-        <div style="margin-top:8px; font-size:12px; color:var(--cui-muted);">The attendance will be stored in cloud and
-          emailed to faculty for approval.</div>
+          style="width:100%;border:1px solid var(--cui-line);border-radius:8px;padding:8px;font-size:13px;">
+        <div style="margin-top:8px;font-size:12px;color:var(--cui-muted);">
+          The attendance will be stored in cloud and emailed to faculty for approval.
+        </div>
       </div>
       <div class="controls" style="margin-top:10px;">
         <button class="btn" id="cancelEmail">Cancel</button>
@@ -714,46 +523,34 @@
   </div>
 
   <script>
-    // Check browser support
-    const supportsPWA = () => ('serviceWorker' in navigator);
+    const supportsPWA      = () => ('serviceWorker' in navigator);
     const supportsIndexedDB = () => (!!window.indexedDB);
-
     console.log('📱 PWA Support:', { serviceWorker: supportsPWA(), idb: supportsIndexedDB() });
 
     // =====================
-    // GOOGLE APPS SCRIPT CONFIG
+    // CONFIG
     // =====================
-    const abc= "https://script.google.com/macros/s/AKfycbwQFbNukwe5hZExOc9IsUXCZYkrbmgIX78vzGr9rCBVkBjhDHMURavu3qm1CQJoudDR/exec";
-    const APPSCRIPT_URL = abc;
-    const ENROLLMENT_URL = abc;
-    
+    const GAS_URL          = "https://script.google.com/macros/s/AKfycbwQFbNukwe5hZExOc9IsUXCZYkrbmgIX78vzGr9rCBVkBjhDHMURavu3qm1CQJoudDR/exec";
+    const APPSCRIPT_URL    = GAS_URL;
+    const ENROLLMENT_URL   = GAS_URL;
     const ENROLLMENT_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
-    // INDEXEDDB HELPER
+    // INDEXEDDB
     // =====================
     class AttendanceDB {
-      constructor() {
-        this.dbName = 'CR_Attendance_v1';
-        this.db = null;
-      }
+      constructor() { this.dbName = 'CR_Attendance_v1'; this.db = null; }
 
       async init() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open(this.dbName, 3); // FIXED: bumped version to create enrollment store
+          const req = indexedDB.open(this.dbName, 3);
           req.onerror = () => reject(req.error);
           req.onsuccess = () => { this.db = req.result; resolve(); };
           req.onupgradeneeded = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains('attendance')) {
-              db.createObjectStore('attendance', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('drafts')) {
-              db.createObjectStore('drafts', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('enrollment')) {
-              db.createObjectStore('enrollment', { keyPath: 'id' });
-            }
+            if (!db.objectStoreNames.contains('attendance')) db.createObjectStore('attendance', { keyPath: 'id' });
+            if (!db.objectStoreNames.contains('drafts'))     db.createObjectStore('drafts',     { keyPath: 'id' });
+            if (!db.objectStoreNames.contains('enrollment')) db.createObjectStore('enrollment', { keyPath: 'id' });
           };
         });
       }
@@ -761,10 +558,7 @@
       async saveDraft(data) {
         const tx = this.db.transaction('drafts', 'readwrite');
         tx.objectStore('drafts').put({ id: 'current', data, savedAt: Date.now() });
-        return new Promise((resolve, reject) => {
-          tx.oncomplete = resolve;
-          tx.onerror = () => reject(tx.error);
-        });
+        return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
 
       async getDraft() {
@@ -772,17 +566,14 @@
         return new Promise((resolve, reject) => {
           const req = tx.objectStore('drafts').get('current');
           req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
+          req.onerror   = () => reject(req.error);
         });
       }
 
       async saveSubmission(submission) {
         const tx = this.db.transaction('attendance', 'readwrite');
         tx.objectStore('attendance').put(submission);
-        return new Promise((resolve, reject) => {
-          tx.oncomplete = resolve;
-          tx.onerror = () => reject(tx.error);
-        });
+        return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
 
       async getSubmissions() {
@@ -790,17 +581,14 @@
         return new Promise((resolve, reject) => {
           const req = tx.objectStore('attendance').getAll();
           req.onsuccess = () => resolve(req.result || []);
-          req.onerror = () => reject(req.error);
+          req.onerror   = () => reject(req.error);
         });
       }
 
       async saveEnrollment(payload) {
         const tx = this.db.transaction('enrollment', 'readwrite');
         tx.objectStore('enrollment').put({ id: 'current', data: payload, savedAt: Date.now() });
-        return new Promise((resolve, reject) => {
-          tx.oncomplete = resolve;
-          tx.onerror = () => reject(tx.error);
-        });
+        return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
 
       async getEnrollment() {
@@ -808,7 +596,7 @@
         return new Promise((resolve, reject) => {
           const req = tx.objectStore('enrollment').get('current');
           req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
+          req.onerror   = () => reject(req.error);
         });
       }
     }
@@ -816,56 +604,56 @@
     // =====================
     // APP STATE
     // =====================
-    const db = new AttendanceDB();
-    let isOnline = navigator.onLine;
-    let locked = false;
+    const db  = new AttendanceDB();
+    let isOnline    = navigator.onLine;
+    let locked      = false;
     let currentUser = { email: '', role: 'CR', courseId: '', section: '' };
-
-    const marks = new Map();
-    let students = [];
+    const marks     = new Map();
+    let students    = [];
     let enrollmentMeta = {};
 
     // =====================
     // DOM REFS
     // =====================
-    const netPill = document.getElementById('netPill');
-    const userBtn = document.getElementById('userBtn');
-    const isOnlineChk = document.getElementById('isOnline');
-    const notes = document.getElementById('notes');
-    const count = document.getElementById('count');
-    const search = document.getElementById('search');
-    const allP = document.getElementById('allP');
-    const allA = document.getElementById('allA');
-    const reset = document.getElementById('reset');
-    const list = document.getElementById('list');
-    const summary = document.getElementById('summary');
-    const submitBtn = document.getElementById('submit');
-    const status = document.getElementById('status');
-    const statusBadge = document.getElementById('statusBadge');
-
+    const netPill          = document.getElementById('netPill');
+    const userBtn          = document.getElementById('userBtn');
+    const isOnlineChk      = document.getElementById('isOnline');
+    const notes            = document.getElementById('notes');
+    const count            = document.getElementById('count');
+    const search           = document.getElementById('search');
+    const allP             = document.getElementById('allP');
+    const allA             = document.getElementById('allA');
+    const reset            = document.getElementById('reset');
+    const list             = document.getElementById('list');
+    const summary          = document.getElementById('summary');
+    const submitBtn        = document.getElementById('submit');
+    const status           = document.getElementById('status');
+    const statusBadge      = document.getElementById('statusBadge');
     const syncEnrollmentBtn = document.getElementById('syncEnrollmentBtn');
-
-    const loginBackdrop = document.getElementById('loginBackdrop');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginBtn = document.getElementById('loginBtn');
-    const loginStatus = document.getElementById('loginStatus');
-
-    const submitBackdrop = document.getElementById('submitBackdrop');
-    const confirmSubmit = document.getElementById('confirmSubmit');
-    const cancelSubmit = document.getElementById('cancelSubmit');
-
-    const emailBackdrop = document.getElementById('emailBackdrop');
-    const facultyEmail = document.getElementById('facultyEmail');
-    const emailStatus = document.getElementById('emailStatus');
-    const sendEmail = document.getElementById('sendEmail');
-    const cancelEmail = document.getElementById('cancelEmail');
+    const loginBackdrop    = document.getElementById('loginBackdrop');
+    const loginEmail       = document.getElementById('loginEmail');
+    const loginBtn         = document.getElementById('loginBtn');
+    const loginStatus      = document.getElementById('loginStatus');
+    const submitBackdrop   = document.getElementById('submitBackdrop');
+    const confirmSubmit    = document.getElementById('confirmSubmit');
+    const cancelSubmit     = document.getElementById('cancelSubmit');
+    const emailBackdrop    = document.getElementById('emailBackdrop');
+    const facultyEmail     = document.getElementById('facultyEmail');
+    const emailStatus      = document.getElementById('emailStatus');
+    const sendEmail        = document.getElementById('sendEmail');
+    const cancelEmail      = document.getElementById('cancelEmail');
+    const pendingBadge     = document.getElementById('pendingBadge');
 
     // =====================
     // CR AUTHENTICATION
     // =====================
-    async function authenticateCR(email) {
-      // ✅ Use the direct ?crEmail=... route provided by the new backend
-      const url = `${ENROLLMENT_URL}?crEmail=${encodeURIComponent(email)}`;
+
+    // ✅ Uses ?action=crLogin&email=...&password=...
+    async function authenticateCR(email, password) {
+      const url = `${ENROLLMENT_URL}?action=crLogin`
+                + `&email=${encodeURIComponent(email)}`
+                + `&password=${encodeURIComponent(password)}`
+                + `&_t=${Date.now()}`;
 
       let text;
       try {
@@ -883,37 +671,29 @@
         throw new Error('Server returned invalid response. Ensure the script is deployed correctly as a Web App.');
       }
 
-      if (!data.ok) {
-        throw new Error(data.error || 'Authentication failed');
-      }
-
-      // data contains: ok, email, courseId, section
+      if (!data.ok) throw new Error(data.error || 'Authentication failed');
       return data;
     }
 
-
     function saveCRToStorage(assignment) {
-      currentUser.email = assignment.email;
+      currentUser.email    = assignment.email;
       currentUser.courseId = assignment.courseId;
-      currentUser.section = assignment.section;
-      localStorage.setItem('cr_email', assignment.email);
+      currentUser.section  = assignment.section;
+      localStorage.setItem('cr_email',      assignment.email);
       localStorage.setItem('cr_assignment', JSON.stringify(assignment));
     }
 
     function loadCRFromStorage() {
-      const email = localStorage.getItem('cr_email');
+      const email         = localStorage.getItem('cr_email');
       const assignmentStr = localStorage.getItem('cr_assignment');
-
       if (email && assignmentStr) {
         try {
-          const assignment = JSON.parse(assignmentStr);
-          currentUser.email = assignment.email;
+          const assignment     = JSON.parse(assignmentStr);
+          currentUser.email    = assignment.email;
           currentUser.courseId = assignment.courseId;
-          currentUser.section = assignment.section;
+          currentUser.section  = assignment.section;
           return true;
-        } catch (e) {
-          return false;
-        }
+        } catch (e) { return false; }
       }
       return false;
     }
@@ -925,23 +705,22 @@
     }
 
     // =====================
-    // HELPER: Set today's date
+    // HELPERS
     // =====================
     function setTodayDate() {
       const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
+      const yyyy  = today.getFullYear();
+      const mm    = String(today.getMonth() + 1).padStart(2, '0');
+      const dd    = String(today.getDate()).padStart(2, '0');
       document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
     }
 
-    // =====================
-    // FUNCTIONS
-    // =====================
     function setNet() {
       netPill.textContent = isOnline ? '🟢 Online' : '🟡 Offline';
-      netPill.className = 'pill badge ' + (isOnline ? 'online' : 'offline');
-      status.textContent = isOnline ? '✅ Online: ready to submit.' : '🟡 Offline: changes saved locally, will sync when online.';
+      netPill.className   = 'pill badge ' + (isOnline ? 'online' : 'offline');
+      status.textContent  = isOnline
+        ? '✅ Online: ready to submit.'
+        : '🟡 Offline: changes saved locally, will sync when online.';
     }
 
     function updateSummary() {
@@ -951,7 +730,7 @@
     }
 
     function render() {
-      const q = (search.value || '').trim().toLowerCase();
+      const q        = (search.value || '').trim().toLowerCase();
       list.innerHTML = '';
       const filtered = students.filter(s =>
         !q ||
@@ -961,7 +740,7 @@
 
       filtered.forEach((s, idx) => {
         const choice = marks.get(s.regNo) || 'P';
-        const row = document.createElement('div');
+        const row    = document.createElement('div');
         row.className = 'stu';
         row.innerHTML = `
           <div class="sr">${idx + 1}</div>
@@ -972,8 +751,7 @@
           <div class="pa">
             <div class="radio ${choice === 'P' ? 'onP' : ''}" data-action="P" data-reg="${s.regNo}">P</div>
             <div class="radio ${choice === 'A' ? 'onA' : ''}" data-action="A" data-reg="${s.regNo}">A</div>
-          </div>
-        `;
+          </div>`;
         list.appendChild(row);
       });
 
@@ -982,9 +760,7 @@
       document.querySelectorAll('.radio').forEach(btn => {
         btn.addEventListener('click', async () => {
           if (locked) return;
-          const reg = btn.dataset.reg;
-          const action = btn.dataset.action;
-          marks.set(reg, action);
+          marks.set(btn.dataset.reg, btn.dataset.action);
           render();
           await saveDraftLocal();
         });
@@ -993,38 +769,36 @@
 
     async function saveDraftLocal() {
       try {
-        const draft = {
+        await db.saveDraft({
           meta: {
-            date: document.getElementById('dateInput').value,
-            startTime: document.getElementById('startTime').value,
-            endTime: document.getElementById('endTime').value,
-            classType: document.getElementById('typeSelect').value,
-            isOnline: isOnlineChk.checked,
+            date:         document.getElementById('dateInput').value,
+            startTime:    document.getElementById('startTime').value,
+            endTime:      document.getElementById('endTime').value,
+            classType:    document.getElementById('typeSelect').value,
+            isOnline:     isOnlineChk.checked,
             lectureNotes: notes.value
           },
-          marks: Object.fromEntries(marks.entries()),
+          marks:  Object.fromEntries(marks.entries()),
           locked
-        };
-        await db.saveDraft(draft);
-      } catch (e) {
-        console.warn('Draft save failed:', e);
-      }
+        });
+      } catch (e) { console.warn('Draft save failed:', e); }
     }
 
     async function setLockState(isLocked) {
       locked = isLocked;
       statusBadge.textContent = locked ? '🔒 Locked' : '✏️ Edit Mode';
 
-      const controls = [isOnlineChk, notes, search, allP, allA, reset, submitBtn, typeSelect, startTime, endTime];
-      controls.forEach(el => {
+      const typeSelect = document.getElementById('typeSelect');
+      const startTime  = document.getElementById('startTime');
+      const endTime    = document.getElementById('endTime');
+
+      [isOnlineChk, notes, search, allP, allA, reset, submitBtn, typeSelect, startTime, endTime].forEach(el => {
         if (el) el.disabled = locked;
       });
 
-      if (locked) {
-        submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
-      } else {
-        submitBtn.innerHTML = '<span>✓</span><div>Submit & Lock</div>';
-      }
+      submitBtn.innerHTML = locked
+        ? '<span>✓</span><div>Submitted (Locked)</div>'
+        : '<span>✓</span><div>Submit &amp; Lock</div>';
 
       await saveDraftLocal();
     }
@@ -1032,9 +806,8 @@
     async function checkDateLock() {
       const selectedDate = document.getElementById('dateInput').value;
       try {
-        const subs = await db.getSubmissions();
-        const existing = subs.find(s => s.payload.date === selectedDate);
-
+        const subs     = await db.getSubmissions();
+        const existing = subs.find(s => s.payload && s.payload.date === selectedDate);
         if (existing) {
           await setLockState(true);
           status.textContent = `🔒 Attendance already submitted for ${selectedDate}.`;
@@ -1042,9 +815,7 @@
           await setLockState(false);
           status.textContent = `✏️ Ready to mark attendance for ${selectedDate}.`;
         }
-      } catch (e) {
-        console.warn('Check date lock failed:', e);
-      }
+      } catch (e) { console.warn('Check date lock failed:', e); }
     }
 
     async function restoreDraftLocal() {
@@ -1053,43 +824,40 @@
         if (!draft || !draft.data) return;
         const d = draft.data;
 
-        document.getElementById('dateInput').value = d.meta.date || document.getElementById('dateInput').value;
-        document.getElementById('startTime').value = d.meta.startTime || '09:00';
-        document.getElementById('endTime').value = d.meta.endTime || '10:20';
+        document.getElementById('dateInput').value  = d.meta.date      || document.getElementById('dateInput').value;
+        document.getElementById('startTime').value  = d.meta.startTime || '09:00';
+        document.getElementById('endTime').value    = d.meta.endTime   || '10:20';
         document.getElementById('typeSelect').value = String(d.meta.classType || '1');
         isOnlineChk.checked = !!d.meta.isOnline;
-        notes.value = d.meta.lectureNotes || '';
-        count.textContent = String((d.meta.lectureNotes || '').length);
+        notes.value         = d.meta.lectureNotes || '';
+        count.textContent   = String((d.meta.lectureNotes || '').length);
 
         if (d.marks) {
           for (const [k, v] of Object.entries(d.marks)) marks.set(k, v);
         }
-
         locked = !!d.locked;
-      } catch (e) {
-        console.warn('Draft restore failed:', e);
-      }
+      } catch (e) { console.warn('Draft restore failed:', e); }
     }
 
     function buildAttendanceJson() {
       return {
-        type: 'attendance',
-        course: enrollmentMeta.courseName || document.getElementById('course').textContent,
-        courseId: enrollmentMeta.courseId || currentUser.courseId,
-        courseValue: enrollmentMeta.courseId || currentUser.courseId,
-        section: enrollmentMeta.section || currentUser.section,
-        date: document.getElementById('dateInput').value,
-        startTime: document.getElementById('startTime').value,
-        endTime: document.getElementById('endTime').value,
-        classType: document.getElementById('typeSelect').value,
-        isOnline: isOnlineChk.checked,
+        type:         'attendance',
+        course:       enrollmentMeta.courseName || document.getElementById('course').textContent,
+        courseId:     enrollmentMeta.courseId   || currentUser.courseId,
+        courseValue:  enrollmentMeta.courseId   || currentUser.courseId,
+        section:      enrollmentMeta.section    || currentUser.section,
+        date:         document.getElementById('dateInput').value,
+        startTime:    document.getElementById('startTime').value,
+        endTime:      document.getElementById('endTime').value,
+        classType:    document.getElementById('typeSelect').value,
+        isOnline:     isOnlineChk.checked,
         lectureNotes: notes.value || '',
-        crEmail: currentUser.email,
-        submittedAt: new Date().toISOString(),
-        students: students.map((s, i) => ({
-          sr: i + 1,
-          reg: s.regNo,
-          name: s.name,
+        crEmail:      currentUser.email,
+        submittedAt:  new Date().toISOString(),
+        students:     students.map((s, i) => ({
+          sr:      i + 1,
+          reg:     s.regNo,
+          name:    s.name,
           present: (marks.get(s.regNo) || 'P') === 'P'
         }))
       };
@@ -1098,40 +866,25 @@
     // =====================
     // ENROLLMENT
     // =====================
-
-    /**
-     * Fetches the latest enrollment from the server for this CR's courseId + section.
-     * Sends action=getLatestEnrollment so the Apps Script can find the newest
-     * Drive file matching: enrollment_course_{courseId}_section_{section}_{YYYY-MM-DD}
-     */
     async function fetchEnrollmentFromServer() {
-      if (!ENROLLMENT_URL) {
-        throw new Error('ENROLLMENT_URL not configured');
-      }
-
       const params = new URLSearchParams({
-        action: 'getLatestEnrollment',
-        secret: ENROLLMENT_SECRET,
-        crEmail: currentUser.email,
+        action:   'getLatestEnrollment',
+        secret:   ENROLLMENT_SECRET,
+        crEmail:  currentUser.email,
         courseId: currentUser.courseId,
-        section: currentUser.section
+        section:  currentUser.section
       });
 
-      const res = await fetch(`${ENROLLMENT_URL}?${params.toString()}`, { redirect: 'follow' });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
+      const res  = await fetch(`${ENROLLMENT_URL}?${params.toString()}`, { redirect: 'follow' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 
       const text = await res.text();
       if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        console.error('Expected JSON, but got HTML:', text.substring(0, 500));
-        throw new Error('Server returned HTML instead of JSON. This usually means the Apps Script deployment permissions are incorrect (must be "Anyone") or the script encountered a fatal error.');
+        throw new Error('Server returned HTML instead of JSON. Check deployment permissions (must be "Anyone").');
       }
 
       const data = JSON.parse(text);
-      if (data.ok === false && data.error) {
-        throw new Error(data.error);
-      }
+      if (data.ok === false && data.error) throw new Error(data.error);
       return data;
     }
 
@@ -1139,29 +892,29 @@
       const enrollment = payload.enrollment || [];
 
       enrollmentMeta = {
-        courseId: payload.courseId || currentUser.courseId,
-        courseName: (payload.courseName && payload.courseName !== 'UNKNOWN')
-              ? payload.courseName
-              : `Course ${payload.courseId || currentUser.courseId}`,
-        section: payload.section || currentUser.section,
-        fileName: payload.fileName || null,
-        fileDate: payload.fileDate || null
+        courseId:  payload.courseId  || currentUser.courseId,
+        courseName: (payload.courseName && payload.courseName.trim() !== '' && payload.courseName.trim().toUpperCase() !== 'UNKNOWN')
+                    ? payload.courseName.trim()
+                    : `Course ${payload.courseId || currentUser.courseId}`,
+        section:   payload.section   || currentUser.section,
+        fileName:  payload.fileName  || null,
+        fileDate:  payload.fileDate  || null
       };
 
-      document.getElementById('course').textContent = enrollmentMeta.courseName;
+      document.getElementById('course').textContent        = enrollmentMeta.courseName;
       document.getElementById('sectionDisplay').textContent = enrollmentMeta.section;
-      document.getElementById('crInfo').textContent = `${currentUser.email} • Section ${enrollmentMeta.section}`;
+      document.getElementById('crInfo').textContent         = `${currentUser.email} • Section ${enrollmentMeta.section}`;
 
-      students = enrollment.map((item) => ({
-        regNo: item.regNo,
+      students = enrollment.map(item => ({
+        regNo:      item.regNo,
         displayReg: item.regNo,
-        name: item.name || 'Unknown'
+        name:       item.name || 'Unknown'
       }));
 
       marks.clear();
       students.forEach(s => marks.set(s.regNo, 'P'));
-
       render();
+
       const fileInfo = enrollmentMeta.fileDate ? ` • ${enrollmentMeta.fileDate}` : '';
       status.textContent = `📁 Enrollment loaded (${students.length} students)${fileInfo}.`;
     }
@@ -1172,34 +925,28 @@
         if (saved && saved.data) {
           applyEnrollment(saved.data);
           const cachedFile = saved.data.fileDate ? ` [${saved.data.fileDate}]` : '';
-          status.textContent = `📁 Loaded enrollment from offline cache (${students.length} students)${cachedFile}.`;
+          status.textContent = `📁 Loaded from cache (${students.length} students)${cachedFile}.`;
         }
 
         if (isOnline) {
-          status.textContent = '⏳ Syncing latest enrollment from server...';
+          status.textContent = '⏳ Syncing enrollment from server...';
           const fresh = await fetchEnrollmentFromServer();
           await db.saveEnrollment(fresh);
           applyEnrollment(fresh);
           const fileInfo = fresh.fileDate ? ` [${fresh.fileDate}]` : '';
-          status.textContent = `✅ Enrollment synced from server (${students.length} students)${fileInfo}.`;
+          status.textContent = `✅ Enrollment synced (${students.length} students)${fileInfo}.`;
         } else if (!saved) {
-          status.textContent = '🟡 Offline and no enrollment cached yet. Connect once to fetch enrollment.';
+          status.textContent = '🟡 Offline and no enrollment cached. Connect once to fetch.';
         }
       } catch (e) {
         console.error('Enrollment init failed:', e);
-        if (!students.length) {
-          status.textContent = '❌ Failed to load enrollment: ' + e.message;
-        }
+        if (!students.length) status.textContent = '❌ Failed to load enrollment: ' + e.message;
       }
     }
 
     async function syncEnrollment() {
-      if (!isOnline) {
-        status.textContent = '🟡 Cannot sync enrollment while offline.';
-        return;
-      }
-
-      status.textContent = '⏳ Syncing latest enrollment...';
+      if (!isOnline) { status.textContent = '🟡 Cannot sync while offline.'; return; }
+      status.textContent = '⏳ Syncing enrollment...';
       try {
         const fresh = await fetchEnrollmentFromServer();
         await db.saveEnrollment(fresh);
@@ -1213,45 +960,116 @@
     }
 
     // =====================
+    // PENDING BADGE
+    // =====================
+    async function updatePendingBadge() {
+      try {
+        const subs    = await db.getSubmissions();
+        const pending = subs.filter(s => s.status === 'pending');
+        if (pending.length > 0) {
+          pendingBadge.textContent     = `🔄 ${pending.length} pending`;
+          pendingBadge.style.display   = 'inline-flex';
+        } else {
+          pendingBadge.style.display   = 'none';
+        }
+      } catch (e) { console.warn('Badge update failed:', e); }
+    }
+
+    // =====================
+    // SYNC PENDING
+    // =====================
+    async function syncPendingSubmissions() {
+      if (!isOnline) return;
+      try {
+        const subs    = await db.getSubmissions();
+        const pending = subs.filter(s => s.status === 'pending');
+        if (!pending.length) return;
+
+        status.textContent = `⏳ Syncing ${pending.length} pending submission(s)...`;
+
+        for (const sub of pending) {
+          try {
+            const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
+              method:   'POST',
+              body:     JSON.stringify(sub.payload),
+              redirect: 'follow'
+            });
+            const text = await res.text();
+            let result = { ok: true };
+            try { if (text.trim().startsWith('{')) result = JSON.parse(text); } catch (_) {}
+
+            if (result.ok !== false) {
+              sub.status   = 'synced';
+              sub.syncedAt = Date.now();
+              await db.saveSubmission(sub);
+            }
+          } catch (err) { console.warn('Sync failed for:', sub.id, err); }
+        }
+
+        const remaining = (await db.getSubmissions()).filter(s => s.status === 'pending').length;
+        status.textContent = remaining === 0
+          ? '✅ All submissions synced.'
+          : `🟡 ${remaining} submission(s) still pending.`;
+
+      } catch (e) { console.error('Sync error:', e); }
+    }
+
+    // =====================
     // LOGIN EVENTS
     // =====================
+    document.getElementById('togglePwdBtn').addEventListener('click', () => {
+      const inp = document.getElementById('loginPassword');
+      inp.type  = inp.type === 'password' ? 'text' : 'password';
+    });
+
+    loginEmail.addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+    });
+
+    document.getElementById('loginPassword').addEventListener('keypress', e => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+
     loginBtn.addEventListener('click', async () => {
-      const email = loginEmail.value.trim();
+      const email    = loginEmail.value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+
       if (!email) {
-        loginStatus.textContent = '⚠️ Please enter your email';
-        loginStatus.style.color = 'var(--cui-danger)';
+        loginStatus.textContent  = '⚠️ Please enter your email';
+        loginStatus.style.color  = 'var(--cui-danger)';
+        return;
+      }
+      if (!password) {
+        loginStatus.textContent  = '⚠️ Please enter your password';
+        loginStatus.style.color  = 'var(--cui-danger)';
         return;
       }
 
-      loginStatus.textContent = '⏳ Authenticating...';
-      loginStatus.style.color = 'var(--cui-muted)';
-      loginBtn.disabled = true;
+      loginStatus.textContent  = '⏳ Authenticating...';
+      loginStatus.style.color  = 'var(--cui-muted)';
+      loginBtn.disabled        = true;
 
       try {
-        const assignment = await authenticateCR(email);
+        const assignment = await authenticateCR(email, password);
         saveCRToStorage(assignment);
 
         loginStatus.textContent = '✅ Login successful!';
         loginStatus.style.color = 'var(--cui-success)';
-
         loginBackdrop.style.display = 'none';
 
         await initEnrollment();
         await restoreDraftLocal();
         render();
+        await updatePendingBadge();
       } catch (e) {
         loginStatus.textContent = '❌ ' + e.message;
         loginStatus.style.color = 'var(--cui-danger)';
-        loginBtn.disabled = false;
+        loginBtn.disabled       = false;
       }
     });
 
-    loginEmail.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') loginBtn.click();
-    });
-
     // =====================
-    // EVENTS
+    // OTHER EVENTS
     // =====================
     notes.addEventListener('input', async () => {
       count.textContent = String(notes.value.length);
@@ -1262,9 +1080,9 @@
 
     ['change', 'input'].forEach(ev => {
       ['startTime', 'endTime', 'typeSelect'].forEach(id => {
-        document.getElementById(id).addEventListener(ev, async () => !locked && await saveDraftLocal());
+        document.getElementById(id).addEventListener(ev, async () => { if (!locked) await saveDraftLocal(); });
       });
-      isOnlineChk.addEventListener(ev, async () => !locked && await saveDraftLocal());
+      isOnlineChk.addEventListener(ev, async () => { if (!locked) await saveDraftLocal(); });
     });
 
     document.getElementById('dateInput').addEventListener('change', async () => {
@@ -1272,7 +1090,7 @@
     });
 
     document.getElementById('emailAttendanceBtn').addEventListener('click', () => {
-      facultyEmail.value = '';
+      facultyEmail.value    = '';
       emailStatus.textContent = '';
       emailBackdrop.style.display = 'flex';
     });
@@ -1283,94 +1101,70 @@
 
     sendEmail.addEventListener('click', async () => {
       const faculty = facultyEmail.value.trim();
-      if (!faculty) {
-        emailStatus.textContent = '⚠️ Please enter faculty email';
-        return;
-      }
+      if (!faculty) { emailStatus.textContent = '⚠️ Please enter faculty email'; return; }
 
-      if (!APPSCRIPT_URL || APPSCRIPT_URL.includes('YOUR_DEPLOYMENT')) {
-        emailStatus.textContent = '⚠️ Apps Script URL not configured. Check setup.';
-        return;
-      }
-
-      const payload = buildAttendanceJson();
+      const payload       = buildAttendanceJson();
       payload.facultyEmail = faculty;
 
       emailStatus.textContent = '⏳ Submitting attendance...';
-      sendEmail.disabled = true;
+      sendEmail.disabled      = true;
 
       try {
-        const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
-          method: 'POST',
-          body: JSON.stringify(payload),
+        const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
+          method:   'POST',
+          body:     JSON.stringify(payload),
           redirect: 'follow'
         });
-
-        // GAS POST returns opaque or JSON — treat any completion as success
         let result = { ok: true };
         try {
           const text = await res.text();
           if (text.trim().startsWith('{')) result = JSON.parse(text);
-        } catch (_) { }
+        } catch (_) {}
 
         if (result.ok === false) throw new Error(result.error || 'Submission failed');
 
-        emailStatus.textContent = '✅ Submitted! Email sent to faculty.';
-
-        locked = true;
-        statusBadge.textContent = '🔒 Locked';
+        emailStatus.textContent   = '✅ Submitted! Email sent to faculty.';
+        locked                    = true;
+        statusBadge.textContent   = '🔒 Locked';
+        submitBtn.disabled        = true;
+        submitBtn.innerHTML       = '<span>✓</span><div>Submitted (Locked)</div>';
+        status.textContent        = '✅ Attendance submitted! Check email for confirmation.';
         await saveDraftLocal();
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
-        status.textContent = '✅ Attendance submitted! Check your email for confirmation.';
-
-        setTimeout(() => {
-          emailBackdrop.style.display = 'none';
-        }, 2000);
+        setTimeout(() => { emailBackdrop.style.display = 'none'; }, 2000);
       } catch (error) {
-        emailStatus.textContent = `❌ Error: ${error.message}. Check console (F12).`;
-        console.error('Apps Script Error:', error);
-        sendEmail.disabled = false;
+        emailStatus.textContent = `❌ Error: ${error.message}`;
+        sendEmail.disabled      = false;
       }
     });
 
     allP.addEventListener('click', async () => {
       if (locked) return;
       students.forEach(s => marks.set(s.regNo, 'P'));
-      render();
-      await saveDraftLocal();
+      render(); await saveDraftLocal();
     });
 
     allA.addEventListener('click', async () => {
       if (locked) return;
       students.forEach(s => marks.set(s.regNo, 'A'));
-      render();
-      await saveDraftLocal();
+      render(); await saveDraftLocal();
     });
 
     reset.addEventListener('click', async () => {
       if (locked) return;
       isOnlineChk.checked = false;
-      notes.value = '';
-      count.textContent = '0';
-      search.value = '';
+      notes.value         = '';
+      count.textContent   = '0';
+      search.value        = '';
       students.forEach(s => marks.set(s.regNo, 'P'));
-      render();
-      await saveDraftLocal();
+      render(); await saveDraftLocal();
     });
 
     submitBtn.addEventListener('click', () => {
       if (locked) return;
-
-      // Calculate marks count for confirmation
       let p = 0, a = 0;
       for (const v of marks.values()) (v === 'P' ? p++ : a++);
       const unmarked = students.length - p - a;
-
-      if (unmarked > 0) {
-        if (!confirm(`Warning: ${unmarked} students are not marked. Continue?`)) return;
-      }
-
+      if (unmarked > 0 && !confirm(`Warning: ${unmarked} students not marked. Continue?`)) return;
       submitBackdrop.style.display = 'flex';
     });
 
@@ -1378,116 +1172,42 @@
       submitBackdrop.style.display = 'none';
     });
 
-    async function syncPendingSubmissions() {
-      if (!isOnline) return;
-
-      try {
-        const subs = await db.getSubmissions();
-        const pending = subs.filter(s => s.status === 'pending');
-
-        if (pending.length === 0) return;
-
-        status.textContent = `⏳ Syncing ${pending.length} pending submission(s)...`;
-
-        for (const sub of pending) {
-          try {
-            const res = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
-              method: 'POST',
-              body: JSON.stringify(sub.payload),
-              redirect: 'follow'
-            });
-
-            const text = await res.text();
-            let result = { ok: true };
-            try {
-              if (text.trim().startsWith('{')) result = JSON.parse(text);
-            } catch (_) { }
-
-            if (result.ok !== false) {
-              sub.status = 'synced';
-              sub.syncedAt = Date.now();
-              await db.saveSubmission(sub);
-            }
-          } catch (err) {
-            console.warn('Sync failed for sub:', sub.id, err);
-          }
-        }
-
-        const remaining = (await db.getSubmissions()).filter(s => s.status === 'pending').length;
-        if (remaining === 0) {
-          status.textContent = '✅ All submissions synced successfully.';
-        } else {
-          status.textContent = `🟡 ${remaining} submission(s) still pending sync.`;
-        }
-      } catch (e) {
-        console.error('Sync failed:', e);
-      }
-    }
-
     confirmSubmit.addEventListener('click', async () => {
       const payload = buildAttendanceJson();
-      console.log('SUBMIT:', payload);
-
       await setLockState(true);
-
       submitBackdrop.style.display = 'none';
-
-      status.textContent = isOnline ? '✅ Submission initiated...' : '🟡 Saved offline, will submit when online.';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
+      status.textContent  = isOnline ? '✅ Submission initiated...' : '🟡 Saved offline, will sync when online.';
 
       try {
-        const subId = Date.now().toString();
-        await db.saveSubmission({
-          id: subId,
-          payload,
-          createdAt: Date.now(),
-          status: 'pending'
-        });
-
+        await db.saveSubmission({ id: Date.now().toString(), payload, createdAt: Date.now(), status: 'pending' });
         await updatePendingBadge();
-
         if (isOnline) {
           await syncPendingSubmissions();
           await updatePendingBadge();
         }
-      } catch (e) {
-        console.warn('Submission save failed:', e);
-      }
+      } catch (e) { console.warn('Submission save failed:', e); }
     });
 
     userBtn.addEventListener('click', () => {
-      const msg = `Profile: ${currentUser.email}\nCourse: ${enrollmentMeta.courseId}\nSection: ${enrollmentMeta.section}\nStatus: ${isOnline ? '🟢 Online' : '🟡 Offline'}\n\nClick OK to logout`;
-      if (confirm(msg)) {
-        logoutCR();
+      const msg = `Profile: ${currentUser.email}\nCourse: ${enrollmentMeta.courseId || '-'}\nSection: ${enrollmentMeta.section || '-'}\nStatus: ${isOnline ? '🟢 Online' : '🟡 Offline'}\n\nClick OK to logout`;
+      if (confirm(msg)) logoutCR();
+    });
+
+    syncEnrollmentBtn.addEventListener('click', () => syncEnrollment());
+
+    pendingBadge.addEventListener('click', async () => {
+      if (isOnline) {
+        await syncPendingSubmissions();
+        await updatePendingBadge();
+      } else {
+        alert('🟡 Offline. Pending submissions will auto-sync when you reconnect.');
       }
     });
 
-
-
-    syncEnrollmentBtn.addEventListener('click', () => {
-      syncEnrollment();
-    });
-
     // =====================
-    // PENDING SYNC BADGE
+    // ONLINE / OFFLINE
     // =====================
-    const pendingBadge = document.getElementById('pendingBadge');
-
-    async function updatePendingBadge() {
-      try {
-        const subs = await db.getSubmissions();
-        const pending = subs.filter(s => s.status === 'pending');
-        if (pending.length > 0) {
-          pendingBadge.textContent = `🔄 ${pending.length} pending`;
-          pendingBadge.style.display = 'inline-flex';
-        } else {
-          pendingBadge.style.display = 'none';
-        }
-      } catch (e) {
-        console.warn('Badge update failed:', e);
-      }
-    }
-
     window.addEventListener('online', () => {
       isOnline = true;
       setNet();
@@ -1500,7 +1220,7 @@
     });
 
     // =====================
-    // INITIALIZATION
+    // INIT
     // =====================
     (async () => {
       try {
@@ -1508,32 +1228,26 @@
         await db.init();
         setNet();
 
-        // Check if CR is already logged in
         if (loadCRFromStorage()) {
           loginBackdrop.style.display = 'none';
           await initEnrollment();
           await restoreDraftLocal();
           render();
+          await checkDateLock();
           await updatePendingBadge();
           console.log('✅ App initialized. CR:', currentUser.email);
         } else {
-          // Show login modal
           loginBackdrop.style.display = 'flex';
           console.log('🔒 CR login required');
         }
-      } catch (e) {
-        console.error('Init failed:', e);
-      }
+      } catch (e) { console.error('Init failed:', e); }
     })();
 
     if (supportsPWA()) {
-      navigator.serviceWorker.register('./service-worker.js').then(() => {
-        console.log('✅ Service Worker registered successfully');
-      }).catch(e => {
-        console.log('⚠️ SW registration failed:', e.message);
-      });
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(e  => console.log('⚠️ SW registration failed:', e.message));
     }
   </script>
 </body>
-
 </html>
