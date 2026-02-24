@@ -1,7 +1,7 @@
 // =====================
 // service-worker.js — CR Attendance PWA
 // =====================
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME    = `cr-attendance-${CACHE_VERSION}`;
 
 const STATIC_SHELL  = [
@@ -19,12 +19,11 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[SW] Caching app shell');
-        // addAll fails silently per-file so errors don't block install
         return Promise.allSettled(STATIC_SHELL.map(url => cache.add(url)));
       })
       .then(() => {
         console.log('[SW] Install complete');
-        return self.skipWaiting(); // activate immediately
+        return self.skipWaiting();
       })
   );
 });
@@ -50,7 +49,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // ✅ NEVER cache Google Apps Script API calls
+  // Never cache Google Apps Script API calls
   if (
     url.hostname.includes('script.google.com') ||
     url.hostname.includes('googleapis.com')
@@ -65,11 +64,10 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ✅ For all other requests: cache-first with background refresh
+  // Cache-first with background refresh (stale-while-revalidate)
   event.respondWith(
     caches.match(event.request)
       .then(cached => {
-        // Background update (stale-while-revalidate)
         const networkFetch = fetch(event.request)
           .then(response => {
             if (response && response.status === 200 && event.request.method === 'GET') {
@@ -80,13 +78,10 @@ self.addEventListener('fetch', event => {
           })
           .catch(() => null);
 
-        // Return cached immediately if available
         if (cached) return cached;
 
-        // Otherwise wait for network
         return networkFetch.then(response => {
           if (response) return response;
-          // Network failed and nothing cached → return app shell for navigations
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
@@ -96,7 +91,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// ── BACKGROUND SYNC: auto-upload pending attendance ───────
+// ── BACKGROUND SYNC ────────────────────────────────────────
 self.addEventListener('sync', event => {
   console.log('[SW] Sync triggered:', event.tag);
   if (event.tag === 'sync-attendance') {
@@ -129,7 +124,6 @@ self.addEventListener('message', event => {
   }
 
   if (event.data.type === 'CACHE_URLS') {
-    // Allow app to request additional URLs to be cached
     const urls = event.data.urls || [];
     caches.open(CACHE_NAME).then(cache => cache.addAll(urls));
   }

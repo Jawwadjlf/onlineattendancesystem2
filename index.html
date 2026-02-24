@@ -377,10 +377,13 @@
             <div class="h" id="brandTitle">📱 CUOnline Attendance</div>
             <div class="s" id="crInfo">Loading...</div>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
             <div id="pendingBadge" class="pill badge offline" style="display:none;cursor:pointer"
               title="Pending submissions waiting to sync">🔄 0 pending</div>
             <div id="netPill" class="pill badge online">🟢 Online</div>
+            <button id="installBtn" class="mini-btn"
+              style="display:none;background:rgba(34,194,95,.18);border-color:rgba(34,194,95,.4);"
+              title="Install app on your device">📲 Install</button>
             <button id="userBtn" class="mini-btn" title="User profile">👤</button>
           </div>
         </div>
@@ -457,7 +460,7 @@
     </div>
   </div>
 
-  <!-- ✅ CR LOGIN MODAL — Email + Password -->
+  <!-- CR LOGIN MODAL -->
   <div class="backdrop" id="loginBackdrop" style="display:flex;">
     <div class="modal" role="dialog" aria-modal="true">
       <h3>🔐 CR Login</h3>
@@ -523,16 +526,16 @@
   </div>
 
   <script>
-    const supportsPWA      = () => ('serviceWorker' in navigator);
+    const supportsPWA       = () => ('serviceWorker' in navigator);
     const supportsIndexedDB = () => (!!window.indexedDB);
     console.log('📱 PWA Support:', { serviceWorker: supportsPWA(), idb: supportsIndexedDB() });
 
     // =====================
     // CONFIG
     // =====================
-    const GAS_URL          = "https://script.google.com/macros/s/AKfycbykBBorZXVTS9qWq8pxypyU8lSvt297cizh2JmLqzNHHkpI1vRtSlUZ8Z2AkY0SQxmC/exec";
-    const APPSCRIPT_URL    = GAS_URL;
-    const ENROLLMENT_URL   = GAS_URL;
+    const GAS_URL           = "https://script.google.com/macros/s/AKfycbykBBorZXVTS9qWq8pxypyU8lSvt297cizh2JmLqzNHHkpI1vRtSlUZ8Z2AkY0SQxmC/exec";
+    const APPSCRIPT_URL     = GAS_URL;
+    const ENROLLMENT_URL    = GAS_URL;
     const ENROLLMENT_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
@@ -615,40 +618,72 @@
     // =====================
     // DOM REFS
     // =====================
-    const netPill          = document.getElementById('netPill');
-    const userBtn          = document.getElementById('userBtn');
-    const isOnlineChk      = document.getElementById('isOnline');
-    const notes            = document.getElementById('notes');
-    const count            = document.getElementById('count');
-    const search           = document.getElementById('search');
-    const allP             = document.getElementById('allP');
-    const allA             = document.getElementById('allA');
-    const reset            = document.getElementById('reset');
-    const list             = document.getElementById('list');
-    const summary          = document.getElementById('summary');
-    const submitBtn        = document.getElementById('submit');
-    const status           = document.getElementById('status');
-    const statusBadge      = document.getElementById('statusBadge');
+    const netPill           = document.getElementById('netPill');
+    const userBtn           = document.getElementById('userBtn');
+    const installBtn        = document.getElementById('installBtn');
+    const isOnlineChk       = document.getElementById('isOnline');
+    const notes             = document.getElementById('notes');
+    const count             = document.getElementById('count');
+    const search            = document.getElementById('search');
+    const allP              = document.getElementById('allP');
+    const allA              = document.getElementById('allA');
+    const reset             = document.getElementById('reset');
+    const list              = document.getElementById('list');
+    const summary           = document.getElementById('summary');
+    const submitBtn         = document.getElementById('submit');
+    const status            = document.getElementById('status');
+    const statusBadge       = document.getElementById('statusBadge');
     const syncEnrollmentBtn = document.getElementById('syncEnrollmentBtn');
-    const loginBackdrop    = document.getElementById('loginBackdrop');
-    const loginEmail       = document.getElementById('loginEmail');
-    const loginBtn         = document.getElementById('loginBtn');
-    const loginStatus      = document.getElementById('loginStatus');
-    const submitBackdrop   = document.getElementById('submitBackdrop');
-    const confirmSubmit    = document.getElementById('confirmSubmit');
-    const cancelSubmit     = document.getElementById('cancelSubmit');
-    const emailBackdrop    = document.getElementById('emailBackdrop');
-    const facultyEmail     = document.getElementById('facultyEmail');
-    const emailStatus      = document.getElementById('emailStatus');
-    const sendEmail        = document.getElementById('sendEmail');
-    const cancelEmail      = document.getElementById('cancelEmail');
-    const pendingBadge     = document.getElementById('pendingBadge');
+    const loginBackdrop     = document.getElementById('loginBackdrop');
+    const loginEmail        = document.getElementById('loginEmail');
+    const loginBtn          = document.getElementById('loginBtn');
+    const loginStatus       = document.getElementById('loginStatus');
+    const submitBackdrop    = document.getElementById('submitBackdrop');
+    const confirmSubmit     = document.getElementById('confirmSubmit');
+    const cancelSubmit      = document.getElementById('cancelSubmit');
+    const emailBackdrop     = document.getElementById('emailBackdrop');
+    const facultyEmail      = document.getElementById('facultyEmail');
+    const emailStatus       = document.getElementById('emailStatus');
+    const sendEmail         = document.getElementById('sendEmail');
+    const cancelEmail       = document.getElementById('cancelEmail');
+    const pendingBadge      = document.getElementById('pendingBadge');
+
+    // =====================
+    // PWA INSTALL PROMPT
+    // =====================
+    let deferredInstallPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      installBtn.style.display = 'block';
+      console.log('📲 Install prompt ready');
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) {
+        alert('ℹ️ To install: use your browser menu → "Add to Home Screen"');
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      console.log('Install outcome:', outcome);
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+        status.textContent = '✅ App installed! Open from your home screen anytime.';
+      }
+      deferredInstallPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+      deferredInstallPrompt = null;
+      console.log('✅ PWA installed successfully');
+    });
 
     // =====================
     // CR AUTHENTICATION
     // =====================
-
-    // ✅ Uses ?action=crLogin&email=...&password=...
     async function authenticateCR(email, password) {
       const url = `${ENROLLMENT_URL}?action=crLogin`
                 + `&email=${encodeURIComponent(email)}`
@@ -668,7 +703,7 @@
         data = JSON.parse(text);
       } catch (e) {
         console.warn('GAS returned non-JSON:', text);
-        throw new Error('Server returned invalid response. Ensure the script is deployed correctly as a Web App.');
+        throw new Error('Server returned invalid response. Ensure the script is deployed as Web App with Anyone access.');
       }
 
       if (!data.ok) throw new Error(data.error || 'Authentication failed');
@@ -880,7 +915,7 @@
 
       const text = await res.text();
       if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        throw new Error('Server returned HTML instead of JSON. Check deployment permissions (must be "Anyone").');
+        throw new Error('Server returned HTML. Check deployment permissions (must be "Anyone").');
       }
 
       const data = JSON.parse(text);
@@ -892,16 +927,16 @@
       const enrollment = payload.enrollment || [];
 
       enrollmentMeta = {
-        courseId:  payload.courseId  || currentUser.courseId,
+        courseId:   payload.courseId  || currentUser.courseId,
         courseName: (payload.courseName && payload.courseName.trim() !== '' && payload.courseName.trim().toUpperCase() !== 'UNKNOWN')
                     ? payload.courseName.trim()
                     : `Course ${payload.courseId || currentUser.courseId}`,
-        section:   payload.section   || currentUser.section,
-        fileName:  payload.fileName  || null,
-        fileDate:  payload.fileDate  || null
+        section:    payload.section   || currentUser.section,
+        fileName:   payload.fileName  || null,
+        fileDate:   payload.fileDate  || null
       };
 
-      document.getElementById('course').textContent        = enrollmentMeta.courseName;
+      document.getElementById('course').textContent         = enrollmentMeta.courseName;
       document.getElementById('sectionDisplay').textContent = enrollmentMeta.section;
       document.getElementById('crInfo').textContent         = `${currentUser.email} • Section ${enrollmentMeta.section}`;
 
@@ -967,16 +1002,16 @@
         const subs    = await db.getSubmissions();
         const pending = subs.filter(s => s.status === 'pending');
         if (pending.length > 0) {
-          pendingBadge.textContent     = `🔄 ${pending.length} pending`;
-          pendingBadge.style.display   = 'inline-flex';
+          pendingBadge.textContent   = `🔄 ${pending.length} pending`;
+          pendingBadge.style.display = 'inline-flex';
         } else {
-          pendingBadge.style.display   = 'none';
+          pendingBadge.style.display = 'none';
         }
       } catch (e) { console.warn('Badge update failed:', e); }
     }
 
     // =====================
-    // SYNC PENDING
+    // SYNC PENDING SUBMISSIONS
     // =====================
     async function syncPendingSubmissions() {
       if (!isOnline) return;
@@ -1015,6 +1050,21 @@
     }
 
     // =====================
+    // BACKGROUND SYNC REGISTRATION
+    // =====================
+    async function registerBackgroundSync_() {
+      if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          await reg.sync.register('sync-attendance');
+          console.log('📡 Background sync registered');
+        } catch (e) {
+          console.warn('Background sync not supported:', e.message);
+        }
+      }
+    }
+
+    // =====================
     // LOGIN EVENTS
     // =====================
     document.getElementById('togglePwdBtn').addEventListener('click', () => {
@@ -1035,26 +1085,26 @@
       const password = document.getElementById('loginPassword').value;
 
       if (!email) {
-        loginStatus.textContent  = '⚠️ Please enter your email';
-        loginStatus.style.color  = 'var(--cui-danger)';
+        loginStatus.textContent = '⚠️ Please enter your email';
+        loginStatus.style.color = 'var(--cui-danger)';
         return;
       }
       if (!password) {
-        loginStatus.textContent  = '⚠️ Please enter your password';
-        loginStatus.style.color  = 'var(--cui-danger)';
+        loginStatus.textContent = '⚠️ Please enter your password';
+        loginStatus.style.color = 'var(--cui-danger)';
         return;
       }
 
-      loginStatus.textContent  = '⏳ Authenticating...';
-      loginStatus.style.color  = 'var(--cui-muted)';
-      loginBtn.disabled        = true;
+      loginStatus.textContent = '⏳ Authenticating...';
+      loginStatus.style.color = 'var(--cui-muted)';
+      loginBtn.disabled       = true;
 
       try {
         const assignment = await authenticateCR(email, password);
         saveCRToStorage(assignment);
 
-        loginStatus.textContent = '✅ Login successful!';
-        loginStatus.style.color = 'var(--cui-success)';
+        loginStatus.textContent     = '✅ Login successful!';
+        loginStatus.style.color     = 'var(--cui-success)';
         loginBackdrop.style.display = 'none';
 
         await initEnrollment();
@@ -1090,7 +1140,7 @@
     });
 
     document.getElementById('emailAttendanceBtn').addEventListener('click', () => {
-      facultyEmail.value    = '';
+      facultyEmail.value      = '';
       emailStatus.textContent = '';
       emailBackdrop.style.display = 'flex';
     });
@@ -1103,7 +1153,7 @@
       const faculty = facultyEmail.value.trim();
       if (!faculty) { emailStatus.textContent = '⚠️ Please enter faculty email'; return; }
 
-      const payload       = buildAttendanceJson();
+      const payload        = buildAttendanceJson();
       payload.facultyEmail = faculty;
 
       emailStatus.textContent = '⏳ Submitting attendance...';
@@ -1123,12 +1173,12 @@
 
         if (result.ok === false) throw new Error(result.error || 'Submission failed');
 
-        emailStatus.textContent   = '✅ Submitted! Email sent to faculty.';
-        locked                    = true;
-        statusBadge.textContent   = '🔒 Locked';
-        submitBtn.disabled        = true;
-        submitBtn.innerHTML       = '<span>✓</span><div>Submitted (Locked)</div>';
-        status.textContent        = '✅ Attendance submitted! Check email for confirmation.';
+        emailStatus.textContent = '✅ Submitted! Email sent to faculty.';
+        locked                  = true;
+        statusBadge.textContent = '🔒 Locked';
+        submitBtn.disabled      = true;
+        submitBtn.innerHTML     = '<span>✓</span><div>Submitted (Locked)</div>';
+        status.textContent      = '✅ Attendance submitted! Check email for confirmation.';
         await saveDraftLocal();
         setTimeout(() => { emailBackdrop.style.display = 'none'; }, 2000);
       } catch (error) {
@@ -1163,7 +1213,8 @@
       if (locked) return;
       let p = 0, a = 0;
       for (const v of marks.values()) (v === 'P' ? p++ : a++);
-      const unmarked = students.length - p - a;
+      const total    = students.length;
+      const unmarked = total - p - a;
       if (unmarked > 0 && !confirm(`Warning: ${unmarked} students not marked. Continue?`)) return;
       submitBackdrop.style.display = 'flex';
     });
@@ -1177,16 +1228,52 @@
       await setLockState(true);
       submitBackdrop.style.display = 'none';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
-      status.textContent  = isOnline ? '✅ Submission initiated...' : '🟡 Saved offline, will sync when online.';
+
+      // Use courseId + section + date as stable dedup key
+      const subId = `${payload.courseId}_${payload.section}_${payload.date}`;
 
       try {
-        await db.saveSubmission({ id: Date.now().toString(), payload, createdAt: Date.now(), status: 'pending' });
+        // Always save to IndexedDB first
+        await db.saveSubmission({
+          id:        subId,
+          payload,
+          createdAt: Date.now(),
+          status:    'pending'
+        });
         await updatePendingBadge();
+
         if (isOnline) {
-          await syncPendingSubmissions();
-          await updatePendingBadge();
+          status.textContent = '⏳ Uploading attendance...';
+          try {
+            const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
+              method:   'POST',
+              body:     JSON.stringify(payload),
+              redirect: 'follow'
+            });
+            let result = { ok: true };
+            try { const t = await res.text(); if (t.trim().startsWith('{')) result = JSON.parse(t); } catch (_) {}
+
+            if (result.ok !== false) {
+              await db.saveSubmission({ id: subId, payload, createdAt: Date.now(), status: 'synced', syncedAt: Date.now() });
+              status.textContent = '✅ Attendance uploaded & locked successfully.';
+              await updatePendingBadge();
+            } else {
+              throw new Error(result.error || 'Upload failed');
+            }
+          } catch (uploadErr) {
+            console.warn('Upload failed, queued for retry:', uploadErr.message);
+            status.textContent = `🟡 Saved locally. Will retry when reconnected.`;
+            await registerBackgroundSync_();
+          }
+        } else {
+          status.textContent = '🟡 Saved offline. Will upload automatically when you reconnect.';
+          await registerBackgroundSync_();
         }
-      } catch (e) { console.warn('Submission save failed:', e); }
+
+      } catch (e) {
+        console.error('Submission error:', e);
+        status.textContent = '❌ Error saving: ' + e.message;
+      }
     });
 
     userBtn.addEventListener('click', () => {
@@ -1220,6 +1307,44 @@
     });
 
     // =====================
+    // SERVICE WORKER + UPDATE HANDLING
+    // =====================
+    if (supportsPWA()) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => {
+          console.log('✅ Service Worker registered:', reg.scope);
+
+          // Handle new version available
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('🔄 New version available');
+                if (confirm('🔄 A new version of the app is available!\nReload now to update?')) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              }
+            });
+          });
+        })
+        .catch(e => console.warn('⚠️ SW registration failed:', e.message));
+
+      // Listen for SW messages (background sync trigger)
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'SW_SYNC_PENDING') {
+          console.log('[App] Background sync triggered by SW');
+          syncPendingSubmissions().then(() => updatePendingBadge());
+        }
+      });
+
+      // Reload when new SW takes control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) { refreshing = true; location.reload(); }
+      });
+    }
+
+    // =====================
     // INIT
     // =====================
     (async () => {
@@ -1242,12 +1367,6 @@
         }
       } catch (e) { console.error('Init failed:', e); }
     })();
-
-    if (supportsPWA()) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => console.log('✅ Service Worker registered'))
-        .catch(e  => console.log('⚠️ SW registration failed:', e.message));
-    }
   </script>
 </body>
 </html>
