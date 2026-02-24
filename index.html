@@ -539,6 +539,29 @@
     const ENROLLMENT_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
+    // OFFLINE CREDENTIAL HASH
+    // FNV-1a 32-bit — fast, collision-resistant enough for offline auth
+    // =====================
+    function simpleHash(str) {
+      let hash = 0x811c9dc5;
+      for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = (hash * 0x01000193) >>> 0;
+      }
+      return hash.toString(16);
+    }
+
+    function saveCredentialHash(email, password) {
+      localStorage.setItem('cr_pwd_hash', simpleHash(email + ':' + password));
+    }
+
+    function verifyCredentialHash(email, password) {
+      const stored = localStorage.getItem('cr_pwd_hash');
+      if (!stored) return false;
+      return stored === simpleHash(email + ':' + password);
+    }
+
+    // =====================
     // INDEXEDDB
     // =====================
     class AttendanceDB {
@@ -736,6 +759,7 @@
     function logoutCR() {
       localStorage.removeItem('cr_email');
       localStorage.removeItem('cr_assignment');
+      localStorage.removeItem('cr_pwd_hash');
       location.reload();
     }
 
@@ -1100,8 +1124,11 @@
       loginBtn.disabled       = true;
 
       try {
+        // Try online authentication
         const assignment = await authenticateCR(email, password);
         saveCRToStorage(assignment);
+        // Cache credential hash for future offline logins
+        saveCredentialHash(email, password);
 
         loginStatus.textContent     = '✅ Login successful!';
         loginStatus.style.color     = 'var(--cui-success)';
@@ -1111,8 +1138,45 @@
         await restoreDraftLocal();
         render();
         await updatePendingBadge();
+
       } catch (e) {
-        loginStatus.textContent = '❌ ' + e.message;
+        const isOfflineError = (
+          e.message === 'offline' ||
+          e.message.toLowerCase().includes('network error') ||
+          e.message.toLowerCase().includes('failed to fetch')
+        );
+
+        if (isOfflineError) {
+          // ── OFFLINE FALLBACK: verify against cached hash ──
+          const cachedAssignmentStr = localStorage.getItem('cr_assignment');
+          const cachedEmail         = localStorage.getItem('cr_email');
+
+          if (cachedAssignmentStr && cachedEmail === email && verifyCredentialHash(email, password)) {
+            // Credentials match cached hash — allow offline login
+            const assignment = JSON.parse(cachedAssignmentStr);
+            saveCRToStorage(assignment);
+
+            loginStatus.textContent     = '✅ Logged in (offline mode)';
+            loginStatus.style.color     = 'var(--cui-success)';
+            loginBackdrop.style.display = 'none';
+
+            await initEnrollment();
+            await restoreDraftLocal();
+            render();
+            await updatePendingBadge();
+            return;
+
+          } else if (!cachedAssignmentStr || cachedEmail !== email) {
+            loginStatus.textContent = '📡 No internet. Please connect to login for the first time.';
+          } else {
+            // Has cache for this email but password is wrong
+            loginStatus.textContent = '❌ Incorrect password. Cannot verify while offline.';
+          }
+
+        } else {
+          loginStatus.textContent = '❌ ' + e.message;
+        }
+
         loginStatus.style.color = 'var(--cui-danger)';
         loginBtn.disabled       = false;
       }
@@ -1213,8 +1277,7 @@
       if (locked) return;
       let p = 0, a = 0;
       for (const v of marks.values()) (v === 'P' ? p++ : a++);
-      const total    = students.length;
-      const unmarked = total - p - a;
+      const unmarked = students.length - p - a;
       if (unmarked > 0 && !confirm(`Warning: ${unmarked} students not marked. Continue?`)) return;
       submitBackdrop.style.display = 'flex';
     });
@@ -1229,11 +1292,9 @@
       submitBackdrop.style.display = 'none';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
 
-      // Use courseId + section + date as stable dedup key
       const subId = `${payload.courseId}_${payload.section}_${payload.date}`;
 
       try {
-        // Always save to IndexedDB first
         await db.saveSubmission({
           id:        subId,
           payload,
@@ -1262,7 +1323,7 @@
             }
           } catch (uploadErr) {
             console.warn('Upload failed, queued for retry:', uploadErr.message);
-            status.textContent = `🟡 Saved locally. Will retry when reconnected.`;
+            status.textContent = '🟡 Saved locally. Will retry when reconnected.';
             await registerBackgroundSync_();
           }
         } else {
@@ -1314,7 +1375,6 @@
         .then(reg => {
           console.log('✅ Service Worker registered:', reg.scope);
 
-          // Handle new version available
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
@@ -1329,7 +1389,6 @@
         })
         .catch(e => console.warn('⚠️ SW registration failed:', e.message));
 
-      // Listen for SW messages (background sync trigger)
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data && event.data.type === 'SW_SYNC_PENDING') {
           console.log('[App] Background sync triggered by SW');
@@ -1337,7 +1396,6 @@
         }
       });
 
-      // Reload when new SW takes control
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) { refreshing = true; location.reload(); }
