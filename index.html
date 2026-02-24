@@ -7,8 +7,6 @@
   <meta name="theme-color" content="#363763" />
   <meta name="description" content="CR Attendance Management System with Biometric Auth & Offline Support" />
   <title>CR Attendance – COMSATS Enhanced</title>
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
 
   <style>
@@ -22,349 +20,81 @@
       --cui-text: #1b1e28;
       --cui-muted: #6b7280;
       --cui-line: #e5e7eb;
-      --cui-shadow: 0 10px 24px rgba(0, 0, 0, .10);
+      --cui-shadow: 0 10px 24px rgba(0,0,0,.10);
       --radius: 14px;
     }
-
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: var(--cui-bg);
-      color: var(--cui-text);
-    }
-
-    .wrap {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 18px;
-    }
-
-    .phone {
-      width: min(430px, 100%);
-      border: 1px solid #d7dbe2;
-      border-radius: 26px;
-      overflow: hidden;
-      background: var(--cui-card);
-      box-shadow: var(--cui-shadow);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topbar {
-      background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary));
-      color: #fff;
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, .18);
-      flex-shrink: 0;
-    }
-
-    .topbar .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .brand { display: flex; flex-direction: column; gap: 2px; }
-    .brand .h { font-weight: 700; font-size: 16px; letter-spacing: .2px; }
-    .brand .s { opacity: .85; font-size: 12px; }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      border: 1px solid rgba(255, 255, 255, .30);
-      background: rgba(255, 255, 255, .10);
-      white-space: nowrap;
-    }
-
-    .mini-btn {
-      border: 1px solid rgba(255, 255, 255, .30);
-      background: rgba(255, 255, 255, .12);
-      color: #fff;
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .mini-btn:hover { background: rgba(255, 255, 255, .18); }
-
-    .content {
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      flex: 1;
-      max-height: calc(100% - 200px);
-    }
-
-    .card {
-      border: 1px solid var(--cui-line);
-      border-radius: var(--radius);
-      padding: 12px;
-      background: #fff;
-    }
-
-    .summary {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .summary .h { font-weight: 800; }
-    .summary .pill2 {
-      border: 1px solid var(--cui-line);
-      background: #f8fafc;
-      color: var(--cui-muted);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 13px; }
-    .kv { display: flex; gap: 10px; align-items: baseline; }
-    .k { width: 70px; color: var(--cui-muted); }
-    .v { font-weight: 700; }
-
-    input[type="date"],
-    input[type="time"],
-    input[type="email"],
-    select {
-      border: 1px solid var(--cui-line);
-      border-radius: 10px;
-      padding: 6px 8px;
-      font-size: 13px;
-      outline: none;
-      width: 100%;
-    }
-    input[type="date"]:focus,
-    input[type="time"]:focus,
-    input[type="email"]:focus,
-    select:focus {
-      border-color: var(--cui-primary);
-      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
-    }
-
-    .checkrow { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; margin-bottom: 10px; }
-    .checkrow input { width: 18px; height: 18px; margin-top: 2px; }
-
-    textarea {
-      width: 100%;
-      border: 1px solid var(--cui-line);
-      border-radius: 10px;
-      padding: 10px;
-      font-family: inherit;
-      font-size: 13px;
-      min-height: 76px;
-      outline: none;
-    }
-    textarea:focus {
-      border-color: var(--cui-primary);
-      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
-    }
-
-    .count { font-size: 12px; color: var(--cui-muted); margin-top: 6px; }
-
-    .search {
-      width: 100%;
-      border: 1px solid var(--cui-line);
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 13px;
-      outline: none;
-    }
-    .search:focus {
-      border-color: var(--cui-primary);
-      box-shadow: 0 0 0 3px rgba(54, 55, 99, .12);
-    }
-
-    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-
-    .btn {
-      border: 1px solid var(--cui-line);
-      background: #f8fafc;
-      color: var(--cui-text);
-      border-radius: 10px;
-      padding: 9px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .btn:hover { background: #eef2f7; }
-    .btn.primary {
-      border-color: rgba(54, 55, 99, .25);
-      background: rgba(54, 55, 99, .10);
-      color: var(--cui-primary);
-    }
-    .btn.danger {
-      border-color: rgba(189, 56, 80, .25);
-      background: rgba(189, 56, 80, .08);
-      color: var(--cui-danger);
-    }
-    .btn.success {
-      border-color: rgba(34, 194, 95, .25);
-      background: rgba(34, 194, 95, .08);
-      color: var(--cui-success);
-    }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    .list { margin-top: 10px; border-top: 1px solid var(--cui-line); }
-
-    .stu {
-      display: grid;
-      grid-template-columns: 34px 1fr 90px;
-      gap: 10px;
-      padding: 10px 4px;
-      border-bottom: 1px solid var(--cui-line);
-      align-items: center;
-    }
-
-    .sr { text-align: center; color: var(--cui-muted); font-size: 12px; }
-    .who { min-width: 0; }
-    .reg { color: var(--cui-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pa { display: flex; gap: 8px; justify-content: flex-end; }
-
-    .radio {
-      width: 38px;
-      height: 32px;
-      border-radius: 10px;
-      border: 1px solid var(--cui-line);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      cursor: pointer;
-      user-select: none;
-      background: #fff;
-      transition: all .2s;
-    }
-    .radio:hover { border-color: var(--cui-primary); }
-    .radio.onP {
-      border-color: rgba(34, 194, 107, .40);
-      background: rgba(34, 194, 107, .15);
-      color: var(--cui-success);
-    }
-    .radio.onA {
-      border-color: rgba(189, 56, 80, .40);
-      background: rgba(189, 56, 80, .15);
-      color: var(--cui-danger);
-    }
-
-    .footer {
-      border-top: 1px solid var(--cui-line);
-      padding: 12px;
-      background: #fff;
-      flex-shrink: 0;
-      overflow-y: auto;
-      max-height: 150px;
-    }
-
-    .submitIconBtn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      justify-content: center;
-      border: 1px solid rgba(54, 55, 99, .25);
-      border-radius: 12px;
-      padding: 10px 12px;
-      cursor: pointer;
-      background: linear-gradient(180deg, var(--cui-primary-2), var(--cui-primary));
-      color: #fff;
-      font-weight: 800;
-      letter-spacing: .2px;
-      transition: all .2s;
-    }
-    .submitIconBtn:hover { filter: brightness(1.05); }
-    .submitIconBtn:active { transform: translateY(1px); }
-    .submitIconBtn[disabled] { opacity: .55; cursor: not-allowed; filter: grayscale(.3); }
-
-    .status { margin-top: 10px; font-size: 13px; color: var(--cui-muted); line-height: 1.3; }
-
-    .backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 999;
-      overflow-y: auto;
-    }
-
-    .modal {
-      width: min(430px, 100%);
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid var(--cui-line);
-      box-shadow: var(--cui-shadow);
-      padding: 14px;
-      margin: auto;
-    }
-    .modal h3 { margin: 0 0 6px; font-size: 16px; }
-    .modal p { margin: 0 0 10px; color: var(--cui-muted); font-size: 13px; }
-    .modal ul { margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
-    .modal li { margin: 4px 0; }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .badge.online  { background: rgba(34, 194, 107, .15); color: var(--cui-success); border: 1px solid rgba(34, 194, 107, .3); }
-    .badge.offline { background: rgba(255, 159, 64, .15); color: #ff9f40; border: 1px solid rgba(255, 159, 64, .3); }
-    .badge.locked  { background: rgba(189, 56, 80, .15); color: var(--cui-danger); border: 1px solid rgba(189, 56, 80, .3); }
-    .badge.approved { background: rgba(34, 194, 107, .15); color: var(--cui-success); border: 1px solid rgba(34, 194, 107, .3); }
-
-    .tab-buttons { display: flex; gap: 10px; margin-bottom: 10px; }
-    .tab-btn {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid var(--cui-line);
-      background: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-      transition: all .2s;
-    }
-    .tab-btn.active { background: var(--cui-primary); color: #fff; border-color: var(--cui-primary); }
-
-    .qr-container { text-align: center; margin: 10px 0; }
-    .qr-container canvas, .qr-container img {
-      max-width: 100%;
-      border: 1px solid var(--cui-line);
-      border-radius: 10px;
-    }
-
-    @media (max-width: 360px) {
-      .stu { grid-template-columns: 30px 1fr 86px; }
-      .radio { width: 36px; }
-    }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .fade-in { animation: fadeIn .3s ease-in; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; background:var(--cui-bg); color:var(--cui-text); }
+    .wrap { min-height:100vh; display:grid; place-items:center; padding:18px; }
+    .phone { width:min(430px,100%); border:1px solid #d7dbe2; border-radius:26px; overflow:hidden; background:var(--cui-card); box-shadow:var(--cui-shadow); display:flex; flex-direction:column; }
+    .topbar { background:linear-gradient(180deg,var(--cui-primary-2),var(--cui-primary)); color:#fff; padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.18); flex-shrink:0; }
+    .topbar .row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .brand { display:flex; flex-direction:column; gap:2px; }
+    .brand .h { font-weight:700; font-size:16px; letter-spacing:.2px; }
+    .brand .s { opacity:.85; font-size:12px; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.30); background:rgba(255,255,255,.10); white-space:nowrap; }
+    .mini-btn { border:1px solid rgba(255,255,255,.30); background:rgba(255,255,255,.12); color:#fff; border-radius:10px; padding:8px 10px; font-size:12px; cursor:pointer; transition:all .2s; }
+    .mini-btn:hover { background:rgba(255,255,255,.18); }
+    .content { padding:12px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex:1; max-height:calc(100% - 200px); }
+    .card { border:1px solid var(--cui-line); border-radius:var(--radius); padding:12px; background:#fff; }
+    .summary { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .summary .h { font-weight:800; }
+    .summary .pill2 { border:1px solid var(--cui-line); background:#f8fafc; color:var(--cui-muted); border-radius:999px; padding:6px 10px; font-size:12px; white-space:nowrap; }
+    .meta { display:grid; grid-template-columns:1fr; gap:6px; font-size:13px; }
+    .kv { display:flex; gap:10px; align-items:baseline; }
+    .k { width:70px; color:var(--cui-muted); }
+    .v { font-weight:700; }
+    input[type="date"],input[type="time"],input[type="email"],select { border:1px solid var(--cui-line); border-radius:10px; padding:6px 8px; font-size:13px; outline:none; width:100%; }
+    input[type="date"]:focus,input[type="time"]:focus,input[type="email"]:focus,select:focus { border-color:var(--cui-primary); box-shadow:0 0 0 3px rgba(54,55,99,.12); }
+    .checkrow { display:flex; align-items:flex-start; gap:10px; font-size:13px; margin-bottom:10px; }
+    .checkrow input { width:18px; height:18px; margin-top:2px; }
+    textarea { width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-family:inherit; font-size:13px; min-height:76px; outline:none; }
+    textarea:focus { border-color:var(--cui-primary); box-shadow:0 0 0 3px rgba(54,55,99,.12); }
+    .count { font-size:12px; color:var(--cui-muted); margin-top:6px; }
+    .search { width:100%; border:1px solid var(--cui-line); border-radius:10px; padding:10px; font-size:13px; outline:none; }
+    .search:focus { border-color:var(--cui-primary); box-shadow:0 0 0 3px rgba(54,55,99,.12); }
+    .controls { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .btn { border:1px solid var(--cui-line); background:#f8fafc; color:var(--cui-text); border-radius:10px; padding:9px 10px; font-size:13px; cursor:pointer; transition:all .2s; }
+    .btn:hover { background:#eef2f7; }
+    .btn.primary { border-color:rgba(54,55,99,.25); background:rgba(54,55,99,.10); color:var(--cui-primary); }
+    .btn.danger { border-color:rgba(189,56,80,.25); background:rgba(189,56,80,.08); color:var(--cui-danger); }
+    .btn.success { border-color:rgba(34,194,95,.25); background:rgba(34,194,95,.08); color:var(--cui-success); }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .list { margin-top:10px; border-top:1px solid var(--cui-line); }
+    .stu { display:grid; grid-template-columns:34px 1fr 90px; gap:10px; padding:10px 4px; border-bottom:1px solid var(--cui-line); align-items:center; }
+    .sr { text-align:center; color:var(--cui-muted); font-size:12px; }
+    .who { min-width:0; }
+    .reg { color:var(--cui-muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .name { font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pa { display:flex; gap:8px; justify-content:flex-end; }
+    .radio { width:38px; height:32px; border-radius:10px; border:1px solid var(--cui-line); display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; user-select:none; background:#fff; transition:all .2s; }
+    .radio:hover { border-color:var(--cui-primary); }
+    .radio.onP { border-color:rgba(34,194,107,.40); background:rgba(34,194,107,.15); color:var(--cui-success); }
+    .radio.onA { border-color:rgba(189,56,80,.40); background:rgba(189,56,80,.15); color:var(--cui-danger); }
+    .footer { border-top:1px solid var(--cui-line); padding:12px; background:#fff; flex-shrink:0; overflow-y:auto; max-height:150px; }
+    .submitIconBtn { display:flex; align-items:center; gap:10px; width:100%; justify-content:center; border:1px solid rgba(54,55,99,.25); border-radius:12px; padding:10px 12px; cursor:pointer; background:linear-gradient(180deg,var(--cui-primary-2),var(--cui-primary)); color:#fff; font-weight:800; letter-spacing:.2px; transition:all .2s; }
+    .submitIconBtn:hover { filter:brightness(1.05); }
+    .submitIconBtn:active { transform:translateY(1px); }
+    .submitIconBtn[disabled] { opacity:.55; cursor:not-allowed; filter:grayscale(.3); }
+    .status { margin-top:10px; font-size:13px; color:var(--cui-muted); line-height:1.3; }
+    .backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; z-index:999; overflow-y:auto; }
+    .modal { width:min(430px,100%); background:#fff; border-radius:16px; border:1px solid var(--cui-line); box-shadow:var(--cui-shadow); padding:14px; margin:auto; }
+    .modal h3 { margin:0 0 6px; font-size:16px; }
+    .modal p { margin:0 0 10px; color:var(--cui-muted); font-size:13px; }
+    .modal ul { margin:0 0 12px; padding-left:18px; font-size:13px; }
+    .modal li { margin:4px 0; }
+    .actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:12px; }
+    .badge { display:inline-block; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+    .badge.online  { background:rgba(34,194,107,.15); color:var(--cui-success); border:1px solid rgba(34,194,107,.3); }
+    .badge.offline { background:rgba(255,159,64,.15); color:#ff9f40; border:1px solid rgba(255,159,64,.3); }
+    .badge.locked  { background:rgba(189,56,80,.15); color:var(--cui-danger); border:1px solid rgba(189,56,80,.3); }
+    .badge.approved { background:rgba(34,194,107,.15); color:var(--cui-success); border:1px solid rgba(34,194,107,.3); }
+    .tab-buttons { display:flex; gap:10px; margin-bottom:10px; }
+    .tab-btn { flex:1; padding:8px; border:1px solid var(--cui-line); background:#fff; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; transition:all .2s; }
+    .tab-btn.active { background:var(--cui-primary); color:#fff; border-color:var(--cui-primary); }
+    @media (max-width:360px) { .stu { grid-template-columns:30px 1fr 86px; } .radio { width:36px; } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .fade-in { animation:fadeIn .3s ease-in; }
   </style>
 </head>
 
@@ -378,19 +108,15 @@
             <div class="s" id="crInfo">Loading...</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-            <div id="pendingBadge" class="pill badge offline" style="display:none;cursor:pointer"
-              title="Pending submissions waiting to sync">🔄 0 pending</div>
+            <div id="pendingBadge" class="pill badge offline" style="display:none;cursor:pointer" title="Pending submissions">🔄 0 pending</div>
             <div id="netPill" class="pill badge online">🟢 Online</div>
-            <button id="installBtn" class="mini-btn"
-              style="display:none;background:rgba(34,194,95,.18);border-color:rgba(34,194,95,.4);"
-              title="Install app on your device">📲 Install</button>
+            <button id="installBtn" class="mini-btn" style="display:none;background:rgba(34,194,95,.18);border-color:rgba(34,194,95,.4);" title="Install app">📲 Install</button>
             <button id="userBtn" class="mini-btn" title="User profile">👤</button>
           </div>
         </div>
       </div>
 
       <div class="content" id="mainContent">
-        <!-- ATTENDANCE FORM -->
         <div class="card">
           <div class="summary">
             <div class="h">Attendance Entry</div>
@@ -402,9 +128,7 @@
             <div class="kv"><div class="k">Date</div><div class="v"><input type="date" id="dateInput" /></div></div>
             <div class="kv">
               <div class="k">Time</div>
-              <div class="v">
-                <input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime" value="10:20" />
-              </div>
+              <div class="v"><input type="time" id="startTime" value="09:00" /> – <input type="time" id="endTime" value="10:20" /></div>
             </div>
             <div class="kv">
               <div class="k">Type</div>
@@ -419,7 +143,6 @@
           </div>
         </div>
 
-        <!-- LECTURE NOTES -->
         <div class="card">
           <div class="checkrow">
             <input type="checkbox" id="isOnline" />
@@ -430,7 +153,6 @@
           <div class="count"><span id="count">0</span>/2999</div>
         </div>
 
-        <!-- STUDENTS ATTENDANCE -->
         <div class="card">
           <div class="summary">
             <div class="h">Students</div>
@@ -449,38 +171,31 @@
 
       <div class="footer">
         <div class="controls" style="margin-bottom:10px;font-size:12px;">
-          <button class="btn" id="emailAttendanceBtn" title="Email attendance to faculty">📧 Email Attendance</button>
+          <button class="btn" id="emailAttendanceBtn">📧 Email Attendance</button>
         </div>
         <button id="submit" class="submitIconBtn">
-          <span>✓</span>
-          <div>Submit &amp; Lock</div>
+          <span>✓</span><div>Submit &amp; Lock</div>
         </button>
-        <div class="status" id="status">Ready to mark attendance. Click students to toggle Present/Absent.</div>
+        <div class="status" id="status">Ready to mark attendance.</div>
       </div>
     </div>
   </div>
 
-  <!-- CR LOGIN MODAL -->
+  <!-- LOGIN MODAL -->
   <div class="backdrop" id="loginBackdrop" style="display:flex;">
     <div class="modal" role="dialog" aria-modal="true">
       <h3>🔐 CR Login</h3>
       <p>Enter your email and password assigned by admin</p>
-
       <div style="margin-bottom:12px;">
         <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px;">CR Email</label>
         <input type="email" id="loginEmail" placeholder="cr@comsats.edu.pk"
           style="width:100%;border:1px solid var(--cui-line);border-radius:10px;padding:10px;font-size:13px;" />
       </div>
-
-      <div style="margin-bottom:12px;position:relative;">
+      <div style="margin-bottom:12px;">
         <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px;">Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter your password"
-          style="width:100%;border:1px solid var(--cui-line);border-radius:10px;padding:10px;padding-right:42px;font-size:13px;" />
-        <span id="togglePwdBtn"
-          style="position:absolute;right:12px;bottom:11px;cursor:pointer;font-size:16px;user-select:none;"
-          title="Show/hide password">👁️</span>
+        <input type="text" id="loginPassword" placeholder="Enter your password"
+          style="width:100%;border:1px solid var(--cui-line);border-radius:10px;padding:10px;font-size:13px;" />
       </div>
-
       <div class="actions">
         <button class="btn primary" id="loginBtn" style="width:100%;">🔐 Login</button>
       </div>
@@ -488,7 +203,7 @@
     </div>
   </div>
 
-  <!-- SUBMIT CONFIRMATION MODAL -->
+  <!-- SUBMIT MODAL -->
   <div class="backdrop" id="submitBackdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <h3>Confirm Submit &amp; Lock</h3>
@@ -505,7 +220,7 @@
     </div>
   </div>
 
-  <!-- EMAIL SUBMISSION MODAL -->
+  <!-- EMAIL MODAL -->
   <div class="backdrop" id="emailBackdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <h3>📧 Email Attendance to Faculty</h3>
@@ -513,9 +228,7 @@
         <label style="display:block;margin-bottom:8px;"><b>Faculty Email:</b></label>
         <input type="email" id="facultyEmail" placeholder="faculty@comsats.edu.pk"
           style="width:100%;border:1px solid var(--cui-line);border-radius:8px;padding:8px;font-size:13px;">
-        <div style="margin-top:8px;font-size:12px;color:var(--cui-muted);">
-          The attendance will be stored in cloud and emailed to faculty for approval.
-        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--cui-muted);">Attendance stored in cloud and emailed to faculty for approval.</div>
       </div>
       <div class="controls" style="margin-top:10px;">
         <button class="btn" id="cancelEmail">Cancel</button>
@@ -528,7 +241,6 @@
   <script>
     const supportsPWA       = () => ('serviceWorker' in navigator);
     const supportsIndexedDB = () => (!!window.indexedDB);
-    console.log('📱 PWA Support:', { serviceWorker: supportsPWA(), idb: supportsIndexedDB() });
 
     // =====================
     // CONFIG
@@ -539,34 +251,10 @@
     const ENROLLMENT_SECRET = "k9F@3xQp7L_92aZ!rT";
 
     // =====================
-    // OFFLINE CREDENTIAL HASH
-    // FNV-1a 32-bit — fast, collision-resistant enough for offline auth
-    // =====================
-    function simpleHash(str) {
-      let hash = 0x811c9dc5;
-      for (let i = 0; i < str.length; i++) {
-        hash ^= str.charCodeAt(i);
-        hash = (hash * 0x01000193) >>> 0;
-      }
-      return hash.toString(16);
-    }
-
-    function saveCredentialHash(email, password) {
-      localStorage.setItem('cr_pwd_hash', simpleHash(email + ':' + password));
-    }
-
-    function verifyCredentialHash(email, password) {
-      const stored = localStorage.getItem('cr_pwd_hash');
-      if (!stored) return false;
-      return stored === simpleHash(email + ':' + password);
-    }
-
-    // =====================
     // INDEXEDDB
     // =====================
     class AttendanceDB {
       constructor() { this.dbName = 'CR_Attendance_v1'; this.db = null; }
-
       async init() {
         return new Promise((resolve, reject) => {
           const req = indexedDB.open(this.dbName, 3);
@@ -580,13 +268,11 @@
           };
         });
       }
-
       async saveDraft(data) {
         const tx = this.db.transaction('drafts', 'readwrite');
         tx.objectStore('drafts').put({ id: 'current', data, savedAt: Date.now() });
         return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
-
       async getDraft() {
         const tx = this.db.transaction('drafts', 'readonly');
         return new Promise((resolve, reject) => {
@@ -595,13 +281,11 @@
           req.onerror   = () => reject(req.error);
         });
       }
-
       async saveSubmission(submission) {
         const tx = this.db.transaction('attendance', 'readwrite');
         tx.objectStore('attendance').put(submission);
         return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
-
       async getSubmissions() {
         const tx = this.db.transaction('attendance', 'readonly');
         return new Promise((resolve, reject) => {
@@ -610,13 +294,11 @@
           req.onerror   = () => reject(req.error);
         });
       }
-
       async saveEnrollment(payload) {
         const tx = this.db.transaction('enrollment', 'readwrite');
         tx.objectStore('enrollment').put({ id: 'current', data: payload, savedAt: Date.now() });
         return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       }
-
       async getEnrollment() {
         const tx = this.db.transaction('enrollment', 'readonly');
         return new Promise((resolve, reject) => {
@@ -630,12 +312,12 @@
     // =====================
     // APP STATE
     // =====================
-    const db  = new AttendanceDB();
-    let isOnline    = navigator.onLine;
-    let locked      = false;
-    let currentUser = { email: '', role: 'CR', courseId: '', section: '' };
-    const marks     = new Map();
-    let students    = [];
+    const db       = new AttendanceDB();
+    let isOnline   = navigator.onLine;
+    let locked     = false;
+    let currentUser = { email:'', role:'CR', courseId:'', section:'' };
+    const marks    = new Map();
+    let students   = [];
     let enrollmentMeta = {};
 
     // =====================
@@ -675,60 +357,35 @@
     // PWA INSTALL PROMPT
     // =====================
     let deferredInstallPrompt = null;
-
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       deferredInstallPrompt = e;
       installBtn.style.display = 'block';
-      console.log('📲 Install prompt ready');
     });
-
     installBtn.addEventListener('click', async () => {
-      if (!deferredInstallPrompt) {
-        alert('ℹ️ To install: use your browser menu → "Add to Home Screen"');
-        return;
-      }
+      if (!deferredInstallPrompt) { alert('ℹ️ Use browser menu → "Add to Home Screen"'); return; }
       deferredInstallPrompt.prompt();
       const { outcome } = await deferredInstallPrompt.userChoice;
-      console.log('Install outcome:', outcome);
-      if (outcome === 'accepted') {
-        installBtn.style.display = 'none';
-        status.textContent = '✅ App installed! Open from your home screen anytime.';
-      }
+      if (outcome === 'accepted') { installBtn.style.display = 'none'; status.textContent = '✅ App installed!'; }
       deferredInstallPrompt = null;
     });
-
-    window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-      deferredInstallPrompt = null;
-      console.log('✅ PWA installed successfully');
-    });
+    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; deferredInstallPrompt = null; });
 
     // =====================
     // CR AUTHENTICATION
     // =====================
     async function authenticateCR(email, password) {
-      const url = `${ENROLLMENT_URL}?action=crLogin`
-                + `&email=${encodeURIComponent(email)}`
-                + `&password=${encodeURIComponent(password)}`
-                + `&_t=${Date.now()}`;
-
+      const url = `${ENROLLMENT_URL}?action=crLogin&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&_t=${Date.now()}`;
       let text;
       try {
         const res = await fetch(url, { redirect: 'follow' });
         text = await res.text();
       } catch (e) {
-        throw new Error('Network error: ' + e.message);
+        throw new Error('network_error');
       }
-
       let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.warn('GAS returned non-JSON:', text);
-        throw new Error('Server returned invalid response. Ensure the script is deployed as Web App with Anyone access.');
-      }
-
+      try { data = JSON.parse(text); }
+      catch (e) { throw new Error('Invalid server response. Check Web App deployment ("Anyone" access).'); }
       if (!data.ok) throw new Error(data.error || 'Authentication failed');
       return data;
     }
@@ -741,15 +398,23 @@
       localStorage.setItem('cr_assignment', JSON.stringify(assignment));
     }
 
+    // Plain-text password stored for offline login
+    function saveCRPassword(password) {
+      localStorage.setItem('cr_password', password);
+    }
+    function getCRPassword() {
+      return localStorage.getItem('cr_password') || '';
+    }
+
     function loadCRFromStorage() {
       const email         = localStorage.getItem('cr_email');
       const assignmentStr = localStorage.getItem('cr_assignment');
       if (email && assignmentStr) {
         try {
-          const assignment     = JSON.parse(assignmentStr);
-          currentUser.email    = assignment.email;
-          currentUser.courseId = assignment.courseId;
-          currentUser.section  = assignment.section;
+          const a          = JSON.parse(assignmentStr);
+          currentUser.email    = a.email;
+          currentUser.courseId = a.courseId;
+          currentUser.section  = a.section;
           return true;
         } catch (e) { return false; }
       }
@@ -759,7 +424,7 @@
     function logoutCR() {
       localStorage.removeItem('cr_email');
       localStorage.removeItem('cr_assignment');
-      localStorage.removeItem('cr_pwd_hash');
+      localStorage.removeItem('cr_password');
       location.reload();
     }
 
@@ -767,19 +432,15 @@
     // HELPERS
     // =====================
     function setTodayDate() {
-      const today = new Date();
-      const yyyy  = today.getFullYear();
-      const mm    = String(today.getMonth() + 1).padStart(2, '0');
-      const dd    = String(today.getDate()).padStart(2, '0');
-      document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+      const t = new Date();
+      document.getElementById('dateInput').value =
+        `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
     }
 
     function setNet() {
       netPill.textContent = isOnline ? '🟢 Online' : '🟡 Offline';
       netPill.className   = 'pill badge ' + (isOnline ? 'online' : 'offline');
-      status.textContent  = isOnline
-        ? '✅ Online: ready to submit.'
-        : '🟡 Offline: changes saved locally, will sync when online.';
+      status.textContent  = isOnline ? '✅ Online: ready to submit.' : '🟡 Offline: saved locally, will sync when online.';
     }
 
     function updateSummary() {
@@ -789,39 +450,30 @@
     }
 
     function render() {
-      const q        = (search.value || '').trim().toLowerCase();
+      const q = (search.value || '').trim().toLowerCase();
       list.innerHTML = '';
       const filtered = students.filter(s =>
-        !q ||
-        (s.displayReg || s.regNo).toLowerCase().includes(q) ||
-        s.name.toLowerCase().includes(q)
+        !q || (s.displayReg||s.regNo).toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
       );
-
       filtered.forEach((s, idx) => {
         const choice = marks.get(s.regNo) || 'P';
-        const row    = document.createElement('div');
+        const row = document.createElement('div');
         row.className = 'stu';
         row.innerHTML = `
-          <div class="sr">${idx + 1}</div>
-          <div class="who">
-            <div class="reg">${s.displayReg || s.regNo}</div>
-            <div class="name">${s.name}</div>
-          </div>
+          <div class="sr">${idx+1}</div>
+          <div class="who"><div class="reg">${s.displayReg||s.regNo}</div><div class="name">${s.name}</div></div>
           <div class="pa">
-            <div class="radio ${choice === 'P' ? 'onP' : ''}" data-action="P" data-reg="${s.regNo}">P</div>
-            <div class="radio ${choice === 'A' ? 'onA' : ''}" data-action="A" data-reg="${s.regNo}">A</div>
+            <div class="radio ${choice==='P'?'onP':''}" data-action="P" data-reg="${s.regNo}">P</div>
+            <div class="radio ${choice==='A'?'onA':''}" data-action="A" data-reg="${s.regNo}">A</div>
           </div>`;
         list.appendChild(row);
       });
-
       updateSummary();
-
       document.querySelectorAll('.radio').forEach(btn => {
         btn.addEventListener('click', async () => {
           if (locked) return;
           marks.set(btn.dataset.reg, btn.dataset.action);
-          render();
-          await saveDraftLocal();
+          render(); await saveDraftLocal();
         });
       });
     }
@@ -830,14 +482,14 @@
       try {
         await db.saveDraft({
           meta: {
-            date:         document.getElementById('dateInput').value,
-            startTime:    document.getElementById('startTime').value,
-            endTime:      document.getElementById('endTime').value,
-            classType:    document.getElementById('typeSelect').value,
-            isOnline:     isOnlineChk.checked,
+            date: document.getElementById('dateInput').value,
+            startTime: document.getElementById('startTime').value,
+            endTime: document.getElementById('endTime').value,
+            classType: document.getElementById('typeSelect').value,
+            isOnline: isOnlineChk.checked,
             lectureNotes: notes.value
           },
-          marks:  Object.fromEntries(marks.entries()),
+          marks: Object.fromEntries(marks.entries()),
           locked
         });
       } catch (e) { console.warn('Draft save failed:', e); }
@@ -846,26 +498,22 @@
     async function setLockState(isLocked) {
       locked = isLocked;
       statusBadge.textContent = locked ? '🔒 Locked' : '✏️ Edit Mode';
-
       const typeSelect = document.getElementById('typeSelect');
       const startTime  = document.getElementById('startTime');
       const endTime    = document.getElementById('endTime');
-
       [isOnlineChk, notes, search, allP, allA, reset, submitBtn, typeSelect, startTime, endTime].forEach(el => {
         if (el) el.disabled = locked;
       });
-
       submitBtn.innerHTML = locked
         ? '<span>✓</span><div>Submitted (Locked)</div>'
         : '<span>✓</span><div>Submit &amp; Lock</div>';
-
       await saveDraftLocal();
     }
 
     async function checkDateLock() {
       const selectedDate = document.getElementById('dateInput').value;
       try {
-        const subs     = await db.getSubmissions();
+        const subs = await db.getSubmissions();
         const existing = subs.find(s => s.payload && s.payload.date === selectedDate);
         if (existing) {
           await setLockState(true);
@@ -882,25 +530,21 @@
         const draft = await db.getDraft();
         if (!draft || !draft.data) return;
         const d = draft.data;
-
         document.getElementById('dateInput').value  = d.meta.date      || document.getElementById('dateInput').value;
         document.getElementById('startTime').value  = d.meta.startTime || '09:00';
         document.getElementById('endTime').value    = d.meta.endTime   || '10:20';
         document.getElementById('typeSelect').value = String(d.meta.classType || '1');
         isOnlineChk.checked = !!d.meta.isOnline;
         notes.value         = d.meta.lectureNotes || '';
-        count.textContent   = String((d.meta.lectureNotes || '').length);
-
-        if (d.marks) {
-          for (const [k, v] of Object.entries(d.marks)) marks.set(k, v);
-        }
+        count.textContent   = String((d.meta.lectureNotes||'').length);
+        if (d.marks) { for (const [k,v] of Object.entries(d.marks)) marks.set(k,v); }
         locked = !!d.locked;
       } catch (e) { console.warn('Draft restore failed:', e); }
     }
 
     function buildAttendanceJson() {
       return {
-        type:         'attendance',
+        type: 'attendance',
         course:       enrollmentMeta.courseName || document.getElementById('course').textContent,
         courseId:     enrollmentMeta.courseId   || currentUser.courseId,
         courseValue:  enrollmentMeta.courseId   || currentUser.courseId,
@@ -913,12 +557,7 @@
         lectureNotes: notes.value || '',
         crEmail:      currentUser.email,
         submittedAt:  new Date().toISOString(),
-        students:     students.map((s, i) => ({
-          sr:      i + 1,
-          reg:     s.regNo,
-          name:    s.name,
-          present: (marks.get(s.regNo) || 'P') === 'P'
-        }))
+        students: students.map((s,i) => ({ sr:i+1, reg:s.regNo, name:s.name, present:(marks.get(s.regNo)||'P')==='P' }))
       };
     }
 
@@ -927,21 +566,13 @@
     // =====================
     async function fetchEnrollmentFromServer() {
       const params = new URLSearchParams({
-        action:   'getLatestEnrollment',
-        secret:   ENROLLMENT_SECRET,
-        crEmail:  currentUser.email,
-        courseId: currentUser.courseId,
-        section:  currentUser.section
+        action:'getLatestEnrollment', secret:ENROLLMENT_SECRET,
+        crEmail:currentUser.email, courseId:currentUser.courseId, section:currentUser.section
       });
-
-      const res  = await fetch(`${ENROLLMENT_URL}?${params.toString()}`, { redirect: 'follow' });
+      const res  = await fetch(`${ENROLLMENT_URL}?${params}`, { redirect:'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-
       const text = await res.text();
-      if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        throw new Error('Server returned HTML. Check deployment permissions (must be "Anyone").');
-      }
-
+      if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Server returned HTML. Check deployment permissions.');
       const data = JSON.parse(text);
       if (data.ok === false && data.error) throw new Error(data.error);
       return data;
@@ -949,33 +580,22 @@
 
     function applyEnrollment(payload) {
       const enrollment = payload.enrollment || [];
-
       enrollmentMeta = {
         courseId:   payload.courseId  || currentUser.courseId,
         courseName: (payload.courseName && payload.courseName.trim() !== '' && payload.courseName.trim().toUpperCase() !== 'UNKNOWN')
-                    ? payload.courseName.trim()
-                    : `Course ${payload.courseId || currentUser.courseId}`,
+                    ? payload.courseName.trim() : `Course ${payload.courseId || currentUser.courseId}`,
         section:    payload.section   || currentUser.section,
         fileName:   payload.fileName  || null,
         fileDate:   payload.fileDate  || null
       };
-
       document.getElementById('course').textContent         = enrollmentMeta.courseName;
       document.getElementById('sectionDisplay').textContent = enrollmentMeta.section;
       document.getElementById('crInfo').textContent         = `${currentUser.email} • Section ${enrollmentMeta.section}`;
-
-      students = enrollment.map(item => ({
-        regNo:      item.regNo,
-        displayReg: item.regNo,
-        name:       item.name || 'Unknown'
-      }));
-
+      students = enrollment.map(item => ({ regNo:item.regNo, displayReg:item.regNo, name:item.name||'Unknown' }));
       marks.clear();
       students.forEach(s => marks.set(s.regNo, 'P'));
       render();
-
-      const fileInfo = enrollmentMeta.fileDate ? ` • ${enrollmentMeta.fileDate}` : '';
-      status.textContent = `📁 Enrollment loaded (${students.length} students)${fileInfo}.`;
+      status.textContent = `📁 Enrollment loaded (${students.length} students)${enrollmentMeta.fileDate?' • '+enrollmentMeta.fileDate:''}.'`;
     }
 
     async function initEnrollment() {
@@ -983,17 +603,14 @@
         const saved = await db.getEnrollment();
         if (saved && saved.data) {
           applyEnrollment(saved.data);
-          const cachedFile = saved.data.fileDate ? ` [${saved.data.fileDate}]` : '';
-          status.textContent = `📁 Loaded from cache (${students.length} students)${cachedFile}.`;
+          status.textContent = `📁 Loaded from cache (${students.length} students)${saved.data.fileDate?' ['+saved.data.fileDate+']':''}.`;
         }
-
         if (isOnline) {
-          status.textContent = '⏳ Syncing enrollment from server...';
+          status.textContent = '⏳ Syncing enrollment...';
           const fresh = await fetchEnrollmentFromServer();
           await db.saveEnrollment(fresh);
           applyEnrollment(fresh);
-          const fileInfo = fresh.fileDate ? ` [${fresh.fileDate}]` : '';
-          status.textContent = `✅ Enrollment synced (${students.length} students)${fileInfo}.`;
+          status.textContent = `✅ Enrollment synced (${students.length} students)${fresh.fileDate?' ['+fresh.fileDate+']':''}.`;
         } else if (!saved) {
           status.textContent = '🟡 Offline and no enrollment cached. Connect once to fetch.';
         }
@@ -1010,12 +627,8 @@
         const fresh = await fetchEnrollmentFromServer();
         await db.saveEnrollment(fresh);
         applyEnrollment(fresh);
-        const fileInfo = enrollmentMeta.fileDate ? ` • ${enrollmentMeta.fileDate}` : '';
-        status.textContent = `✅ Enrollment updated (${students.length} students)${fileInfo}.`;
-      } catch (e) {
-        console.error('Sync failed:', e);
-        status.textContent = '❌ Enrollment sync failed: ' + e.message;
-      }
+        status.textContent = `✅ Enrollment updated (${students.length} students)${enrollmentMeta.fileDate?' • '+enrollmentMeta.fileDate:''}.`;
+      } catch (e) { status.textContent = '❌ Sync failed: ' + e.message; }
     }
 
     // =====================
@@ -1023,7 +636,7 @@
     // =====================
     async function updatePendingBadge() {
       try {
-        const subs    = await db.getSubmissions();
+        const subs = await db.getSubmissions();
         const pending = subs.filter(s => s.status === 'pending');
         if (pending.length > 0) {
           pendingBadge.textContent   = `🔄 ${pending.length} pending`;
@@ -1035,7 +648,7 @@
     }
 
     // =====================
-    // SYNC PENDING SUBMISSIONS
+    // SYNC PENDING
     // =====================
     async function syncPendingSubmissions() {
       if (!isOnline) return;
@@ -1043,134 +656,91 @@
         const subs    = await db.getSubmissions();
         const pending = subs.filter(s => s.status === 'pending');
         if (!pending.length) return;
-
         status.textContent = `⏳ Syncing ${pending.length} pending submission(s)...`;
-
         for (const sub of pending) {
           try {
             const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
-              method:   'POST',
-              body:     JSON.stringify(sub.payload),
-              redirect: 'follow'
+              method:'POST', body:JSON.stringify(sub.payload), redirect:'follow'
             });
             const text = await res.text();
-            let result = { ok: true };
+            let result = { ok:true };
             try { if (text.trim().startsWith('{')) result = JSON.parse(text); } catch (_) {}
-
             if (result.ok !== false) {
-              sub.status   = 'synced';
-              sub.syncedAt = Date.now();
+              sub.status = 'synced'; sub.syncedAt = Date.now();
               await db.saveSubmission(sub);
             }
           } catch (err) { console.warn('Sync failed for:', sub.id, err); }
         }
-
         const remaining = (await db.getSubmissions()).filter(s => s.status === 'pending').length;
-        status.textContent = remaining === 0
-          ? '✅ All submissions synced.'
-          : `🟡 ${remaining} submission(s) still pending.`;
-
+        status.textContent = remaining === 0 ? '✅ All submissions synced.' : `🟡 ${remaining} submission(s) still pending.`;
       } catch (e) { console.error('Sync error:', e); }
     }
 
-    // =====================
-    // BACKGROUND SYNC REGISTRATION
-    // =====================
     async function registerBackgroundSync_() {
       if ('serviceWorker' in navigator && 'SyncManager' in window) {
-        try {
-          const reg = await navigator.serviceWorker.ready;
-          await reg.sync.register('sync-attendance');
-          console.log('📡 Background sync registered');
-        } catch (e) {
-          console.warn('Background sync not supported:', e.message);
-        }
+        try { const reg = await navigator.serviceWorker.ready; await reg.sync.register('sync-attendance'); }
+        catch (e) { console.warn('Background sync not supported:', e.message); }
       }
     }
 
     // =====================
     // LOGIN EVENTS
     // =====================
-    document.getElementById('togglePwdBtn').addEventListener('click', () => {
-      const inp = document.getElementById('loginPassword');
-      inp.type  = inp.type === 'password' ? 'text' : 'password';
-    });
-
-    loginEmail.addEventListener('keypress', e => {
-      if (e.key === 'Enter') document.getElementById('loginPassword').focus();
-    });
-
-    document.getElementById('loginPassword').addEventListener('keypress', e => {
-      if (e.key === 'Enter') loginBtn.click();
-    });
+    loginEmail.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+    document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') loginBtn.click(); });
 
     loginBtn.addEventListener('click', async () => {
       const email    = loginEmail.value.trim().toLowerCase();
-      const password = document.getElementById('loginPassword').value;
+      const password = document.getElementById('loginPassword').value.trim();
 
-      if (!email) {
-        loginStatus.textContent = '⚠️ Please enter your email';
-        loginStatus.style.color = 'var(--cui-danger)';
-        return;
-      }
-      if (!password) {
-        loginStatus.textContent = '⚠️ Please enter your password';
-        loginStatus.style.color = 'var(--cui-danger)';
-        return;
-      }
+      if (!email)    { loginStatus.textContent = '⚠️ Please enter your email';    loginStatus.style.color = 'var(--cui-danger)'; return; }
+      if (!password) { loginStatus.textContent = '⚠️ Please enter your password'; loginStatus.style.color = 'var(--cui-danger)'; return; }
 
       loginStatus.textContent = '⏳ Authenticating...';
       loginStatus.style.color = 'var(--cui-muted)';
       loginBtn.disabled       = true;
 
       try {
-        // Try online authentication
+        // Online login via GAS
         const assignment = await authenticateCR(email, password);
         saveCRToStorage(assignment);
-        // Cache credential hash for future offline logins
-        saveCredentialHash(email, password);
+        saveCRPassword(password);   // save plain password for offline use
 
         loginStatus.textContent     = '✅ Login successful!';
         loginStatus.style.color     = 'var(--cui-success)';
         loginBackdrop.style.display = 'none';
-
         await initEnrollment();
         await restoreDraftLocal();
         render();
         await updatePendingBadge();
 
       } catch (e) {
-        const isOfflineError = (
-          e.message === 'offline' ||
-          e.message.toLowerCase().includes('network error') ||
-          e.message.toLowerCase().includes('failed to fetch')
-        );
+        const isOffline = (e.message === 'network_error' || e.message === 'offline' ||
+                           e.message.toLowerCase().includes('failed to fetch'));
 
-        if (isOfflineError) {
-          // ── OFFLINE FALLBACK: verify against cached hash ──
-          const cachedAssignmentStr = localStorage.getItem('cr_assignment');
-          const cachedEmail         = localStorage.getItem('cr_email');
+        if (isOffline) {
+          // Offline fallback: compare email + password against localStorage directly
+          const cachedEmail    = localStorage.getItem('cr_email') || '';
+          const cachedPassword = getCRPassword();
+          const cachedAssignment = localStorage.getItem('cr_assignment');
 
-          if (cachedAssignmentStr && cachedEmail === email && verifyCredentialHash(email, password)) {
-            // Credentials match cached hash — allow offline login
-            const assignment = JSON.parse(cachedAssignmentStr);
+          if (cachedAssignment && cachedEmail === email && cachedPassword === password) {
+            // Match — allow offline login
+            const assignment = JSON.parse(cachedAssignment);
             saveCRToStorage(assignment);
-
             loginStatus.textContent     = '✅ Logged in (offline mode)';
             loginStatus.style.color     = 'var(--cui-success)';
             loginBackdrop.style.display = 'none';
-
             await initEnrollment();
             await restoreDraftLocal();
             render();
             await updatePendingBadge();
             return;
 
-          } else if (!cachedAssignmentStr || cachedEmail !== email) {
+          } else if (!cachedAssignment || cachedEmail !== email) {
             loginStatus.textContent = '📡 No internet. Please connect to login for the first time.';
           } else {
-            // Has cache for this email but password is wrong
-            loginStatus.textContent = '❌ Incorrect password. Cannot verify while offline.';
+            loginStatus.textContent = '❌ Wrong password. Cannot verify while offline.';
           }
 
         } else {
@@ -1185,92 +755,52 @@
     // =====================
     // OTHER EVENTS
     // =====================
-    notes.addEventListener('input', async () => {
-      count.textContent = String(notes.value.length);
-      if (!locked) await saveDraftLocal();
-    });
-
+    notes.addEventListener('input', async () => { count.textContent = String(notes.value.length); if (!locked) await saveDraftLocal(); });
     search.addEventListener('input', render);
-
-    ['change', 'input'].forEach(ev => {
-      ['startTime', 'endTime', 'typeSelect'].forEach(id => {
+    ['change','input'].forEach(ev => {
+      ['startTime','endTime','typeSelect'].forEach(id => {
         document.getElementById(id).addEventListener(ev, async () => { if (!locked) await saveDraftLocal(); });
       });
       isOnlineChk.addEventListener(ev, async () => { if (!locked) await saveDraftLocal(); });
     });
-
-    document.getElementById('dateInput').addEventListener('change', async () => {
-      await checkDateLock();
-    });
+    document.getElementById('dateInput').addEventListener('change', async () => { await checkDateLock(); });
 
     document.getElementById('emailAttendanceBtn').addEventListener('click', () => {
-      facultyEmail.value      = '';
-      emailStatus.textContent = '';
+      facultyEmail.value = ''; emailStatus.textContent = '';
       emailBackdrop.style.display = 'flex';
     });
-
-    cancelEmail.addEventListener('click', () => {
-      emailBackdrop.style.display = 'none';
-    });
+    cancelEmail.addEventListener('click', () => { emailBackdrop.style.display = 'none'; });
 
     sendEmail.addEventListener('click', async () => {
       const faculty = facultyEmail.value.trim();
       if (!faculty) { emailStatus.textContent = '⚠️ Please enter faculty email'; return; }
-
-      const payload        = buildAttendanceJson();
+      const payload = buildAttendanceJson();
       payload.facultyEmail = faculty;
-
       emailStatus.textContent = '⏳ Submitting attendance...';
-      sendEmail.disabled      = true;
-
+      sendEmail.disabled = true;
       try {
         const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
-          method:   'POST',
-          body:     JSON.stringify(payload),
-          redirect: 'follow'
+          method:'POST', body:JSON.stringify(payload), redirect:'follow'
         });
-        let result = { ok: true };
-        try {
-          const text = await res.text();
-          if (text.trim().startsWith('{')) result = JSON.parse(text);
-        } catch (_) {}
-
+        let result = { ok:true };
+        try { const text = await res.text(); if (text.trim().startsWith('{')) result = JSON.parse(text); } catch (_) {}
         if (result.ok === false) throw new Error(result.error || 'Submission failed');
-
         emailStatus.textContent = '✅ Submitted! Email sent to faculty.';
-        locked                  = true;
-        statusBadge.textContent = '🔒 Locked';
-        submitBtn.disabled      = true;
-        submitBtn.innerHTML     = '<span>✓</span><div>Submitted (Locked)</div>';
-        status.textContent      = '✅ Attendance submitted! Check email for confirmation.';
+        locked = true; statusBadge.textContent = '🔒 Locked';
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
+        status.textContent = '✅ Attendance submitted!';
         await saveDraftLocal();
         setTimeout(() => { emailBackdrop.style.display = 'none'; }, 2000);
-      } catch (error) {
-        emailStatus.textContent = `❌ Error: ${error.message}`;
-        sendEmail.disabled      = false;
-      }
+      } catch (error) { emailStatus.textContent = `❌ Error: ${error.message}`; sendEmail.disabled = false; }
     });
 
-    allP.addEventListener('click', async () => {
-      if (locked) return;
-      students.forEach(s => marks.set(s.regNo, 'P'));
-      render(); await saveDraftLocal();
-    });
-
-    allA.addEventListener('click', async () => {
-      if (locked) return;
-      students.forEach(s => marks.set(s.regNo, 'A'));
-      render(); await saveDraftLocal();
-    });
-
+    allP.addEventListener('click', async () => { if (locked) return; students.forEach(s => marks.set(s.regNo,'P')); render(); await saveDraftLocal(); });
+    allA.addEventListener('click', async () => { if (locked) return; students.forEach(s => marks.set(s.regNo,'A')); render(); await saveDraftLocal(); });
     reset.addEventListener('click', async () => {
       if (locked) return;
-      isOnlineChk.checked = false;
-      notes.value         = '';
-      count.textContent   = '0';
-      search.value        = '';
-      students.forEach(s => marks.set(s.regNo, 'P'));
-      render(); await saveDraftLocal();
+      isOnlineChk.checked = false; notes.value = ''; count.textContent = '0'; search.value = '';
+      students.forEach(s => marks.set(s.regNo,'P')); render(); await saveDraftLocal();
     });
 
     submitBtn.addEventListener('click', () => {
@@ -1281,48 +811,31 @@
       if (unmarked > 0 && !confirm(`Warning: ${unmarked} students not marked. Continue?`)) return;
       submitBackdrop.style.display = 'flex';
     });
-
-    cancelSubmit.addEventListener('click', () => {
-      submitBackdrop.style.display = 'none';
-    });
+    cancelSubmit.addEventListener('click', () => { submitBackdrop.style.display = 'none'; });
 
     confirmSubmit.addEventListener('click', async () => {
       const payload = buildAttendanceJson();
       await setLockState(true);
       submitBackdrop.style.display = 'none';
       submitBtn.innerHTML = '<span>✓</span><div>Submitted (Locked)</div>';
-
       const subId = `${payload.courseId}_${payload.section}_${payload.date}`;
-
       try {
-        await db.saveSubmission({
-          id:        subId,
-          payload,
-          createdAt: Date.now(),
-          status:    'pending'
-        });
+        await db.saveSubmission({ id:subId, payload, createdAt:Date.now(), status:'pending' });
         await updatePendingBadge();
-
         if (isOnline) {
           status.textContent = '⏳ Uploading attendance...';
           try {
             const res  = await fetch(`${APPSCRIPT_URL}?secret=${encodeURIComponent(ENROLLMENT_SECRET)}`, {
-              method:   'POST',
-              body:     JSON.stringify(payload),
-              redirect: 'follow'
+              method:'POST', body:JSON.stringify(payload), redirect:'follow'
             });
-            let result = { ok: true };
+            let result = { ok:true };
             try { const t = await res.text(); if (t.trim().startsWith('{')) result = JSON.parse(t); } catch (_) {}
-
             if (result.ok !== false) {
-              await db.saveSubmission({ id: subId, payload, createdAt: Date.now(), status: 'synced', syncedAt: Date.now() });
+              await db.saveSubmission({ id:subId, payload, createdAt:Date.now(), status:'synced', syncedAt:Date.now() });
               status.textContent = '✅ Attendance uploaded & locked successfully.';
               await updatePendingBadge();
-            } else {
-              throw new Error(result.error || 'Upload failed');
-            }
+            } else { throw new Error(result.error || 'Upload failed'); }
           } catch (uploadErr) {
-            console.warn('Upload failed, queued for retry:', uploadErr.message);
             status.textContent = '🟡 Saved locally. Will retry when reconnected.';
             await registerBackgroundSync_();
           }
@@ -1330,68 +843,47 @@
           status.textContent = '🟡 Saved offline. Will upload automatically when you reconnect.';
           await registerBackgroundSync_();
         }
-
-      } catch (e) {
-        console.error('Submission error:', e);
-        status.textContent = '❌ Error saving: ' + e.message;
-      }
+      } catch (e) { status.textContent = '❌ Error saving: ' + e.message; }
     });
 
     userBtn.addEventListener('click', () => {
-      const msg = `Profile: ${currentUser.email}\nCourse: ${enrollmentMeta.courseId || '-'}\nSection: ${enrollmentMeta.section || '-'}\nStatus: ${isOnline ? '🟢 Online' : '🟡 Offline'}\n\nClick OK to logout`;
+      const msg = `Profile: ${currentUser.email}\nCourse: ${enrollmentMeta.courseId||'-'}\nSection: ${enrollmentMeta.section||'-'}\nStatus: ${isOnline?'🟢 Online':'🟡 Offline'}\n\nClick OK to logout`;
       if (confirm(msg)) logoutCR();
     });
 
     syncEnrollmentBtn.addEventListener('click', () => syncEnrollment());
 
     pendingBadge.addEventListener('click', async () => {
-      if (isOnline) {
-        await syncPendingSubmissions();
-        await updatePendingBadge();
-      } else {
-        alert('🟡 Offline. Pending submissions will auto-sync when you reconnect.');
-      }
+      if (isOnline) { await syncPendingSubmissions(); await updatePendingBadge(); }
+      else { alert('🟡 Offline. Will auto-sync when reconnected.'); }
     });
 
     // =====================
     // ONLINE / OFFLINE
     // =====================
-    window.addEventListener('online', () => {
-      isOnline = true;
-      setNet();
-      syncPendingSubmissions().then(() => updatePendingBadge());
-    });
-
-    window.addEventListener('offline', () => {
-      isOnline = false;
-      setNet();
-    });
+    window.addEventListener('online',  () => { isOnline = true;  setNet(); syncPendingSubmissions().then(() => updatePendingBadge()); });
+    window.addEventListener('offline', () => { isOnline = false; setNet(); });
 
     // =====================
-    // SERVICE WORKER + UPDATE HANDLING
+    // SERVICE WORKER
     // =====================
     if (supportsPWA()) {
       navigator.serviceWorker.register('./service-worker.js')
         .then(reg => {
-          console.log('✅ Service Worker registered:', reg.scope);
-
+          console.log('✅ SW registered:', reg.scope);
           reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('🔄 New version available');
-                if (confirm('🔄 A new version of the app is available!\nReload now to update?')) {
-                  newWorker.postMessage({ type: 'SKIP_WAITING' });
-                }
+            const nw = reg.installing;
+            nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                if (confirm('🔄 New app version available. Reload now?')) nw.postMessage({ type:'SKIP_WAITING' });
               }
             });
           });
         })
-        .catch(e => console.warn('⚠️ SW registration failed:', e.message));
+        .catch(e => console.warn('⚠️ SW failed:', e.message));
 
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data && event.data.type === 'SW_SYNC_PENDING') {
-          console.log('[App] Background sync triggered by SW');
           syncPendingSubmissions().then(() => updatePendingBadge());
         }
       });
@@ -1410,7 +902,6 @@
         setTodayDate();
         await db.init();
         setNet();
-
         if (loadCRFromStorage()) {
           loginBackdrop.style.display = 'none';
           await initEnrollment();
@@ -1418,10 +909,8 @@
           render();
           await checkDateLock();
           await updatePendingBadge();
-          console.log('✅ App initialized. CR:', currentUser.email);
         } else {
           loginBackdrop.style.display = 'flex';
-          console.log('🔒 CR login required');
         }
       } catch (e) { console.error('Init failed:', e); }
     })();
