@@ -2,7 +2,7 @@
   "name": "CR Attendance – COMSATS",
   "short_name": "CR Attendance",
   "description": "Class Representative Attendance Management System for COMSATS University",
-  "start_url": "./index.html",
+  "start_url": "/",
   "scope": "./",
   "display": "standalone",
   "background_color": "#1e1f4a",
