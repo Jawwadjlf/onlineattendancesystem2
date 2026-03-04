@@ -469,12 +469,13 @@
         list.appendChild(row);
       });
       updateSummary();
-      document.querySelectorAll('.radio').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (locked) return;
-          marks.set(btn.dataset.reg, btn.dataset.action);
-          render(); await saveDraftLocal();
-        });
+     list.addEventListener('click', async (e) => {
+  const radio = e.target.closest('.radio');
+  if (!radio || locked) return;
+  marks.set(radio.dataset.reg, radio.dataset.action);
+  render();
+  await saveDraftLocal();
+});
       });
     }
 
